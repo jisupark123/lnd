@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // eslint-plugin-prettier을 추가하지 않을 시 넣어야 한다.
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "css.customData": [".vscode/css_custom_data.json"]
+}
