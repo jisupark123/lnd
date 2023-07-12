@@ -1,0 +1,47 @@
+.color-black {
+  animation: k--color-black 0.2s linear forwards;
+}
+.color-white {
+  animation: k--color-white 0.2s linear forwards;
+}
+
+.move-black {
+  animation: k--move-black 0.2s linear forwards;
+}
+.move-white {
+  animation: k--move-white 0.2s linear forwards;
+}
+
+@keyframes k--color-black {
+  from {
+    @apply bg-white text-main;
+  }
+  to {
+    @apply bg-black text-white;
+  }
+}
+@keyframes k--color-white {
+  from {
+    @apply bg-black text-white;
+  }
+  to {
+    @apply bg-white text-main;
+  }
+}
+
+@keyframes k--move-black {
+  from {
+    @apply left-72 bg-main;
+  }
+  to {
+    @apply left-4 bg-white;
+  }
+}
+@keyframes k--move-white {
+  from {
+    @apply left-4 bg-white;
+  }
+  to {
+    @apply left-72 bg-main;
+  }
+}
