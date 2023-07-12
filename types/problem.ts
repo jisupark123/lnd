@@ -1,4 +1,4 @@
-import { StoneColor } from '@/libs/baduk/baduk';
+import { StoneColor } from '@/libs/domain/baduk/baduk';
 
 export interface ProblemFormat {
   dimensions: number; // 몇줄 바둑판
