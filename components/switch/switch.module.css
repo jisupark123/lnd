@@ -1,0 +1,68 @@
+.bg-on {
+  animation: k--bg-on 0.2s linear forwards;
+}
+.bg-off {
+  animation: k--bg-off 0.2s linear forwards;
+}
+.btn-on.big {
+  animation: k--btn-on_big 0.2s linear forwards;
+}
+.btn-off.big {
+  animation: k--btn-off_big 0.2s linear forwards;
+}
+.btn-on.small {
+  animation: k--btn-on_small 0.2s linear forwards;
+}
+.btn-off.small {
+  animation: k--btn-off_small 0.2s linear forwards;
+}
+
+@keyframes k--bg-on {
+  from {
+    @apply bg-disable;
+  }
+  to {
+    @apply bg-main;
+  }
+}
+@keyframes k--bg-off {
+  from {
+    @apply bg-main;
+  }
+  to {
+    @apply bg-disable;
+  }
+}
+
+@keyframes k--btn-on_big {
+  from {
+    left: 3px;
+  }
+  to {
+    left: 17px;
+  }
+}
+@keyframes k--btn-off_big {
+  from {
+    left: 17px;
+  }
+  to {
+    left: 3px;
+  }
+}
+@keyframes k--btn-on_small {
+  from {
+    left: 2px;
+  }
+  to {
+    left: 13px;
+  }
+}
+@keyframes k--btn-off_small {
+  from {
+    left: 13px;
+  }
+  to {
+    left: 2px;
+  }
+}
