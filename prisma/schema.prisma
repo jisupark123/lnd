@@ -1,7 +1,7 @@
 enum LoginFrom {
-  InApp
-  Kakao
-  Naver
+  in_app
+  kakao
+  naver
 }
 
 generator client {
@@ -21,10 +21,10 @@ model User {
   nickname        String        @unique @db.VarChar(50)
   profileImage    String?
   loginFrom       LoginFrom
-  levelScore      Float // 레벨 점수
+  levelScore      Float         @default(0) // 레벨 점수 
   createdProblems Problem[]
   attempts        Attempt[]
-  RefreshToken    RefreshToken?
+  refreshToken    RefreshToken?
 }
 
 model Problem {
