@@ -1,5 +1,5 @@
 import { StoneColor } from '@/libs/domain/baduk/baduk';
-import { cls } from '@/utils/cls';
+import { cls } from '@/libs/client/cls';
 import React from 'react';
 import styles from './bwSwitch.module.css';
 

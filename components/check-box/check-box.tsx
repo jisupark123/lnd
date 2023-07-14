@@ -1,4 +1,4 @@
-import { cls } from '@/utils/cls';
+import { cls } from '@/libs/client/cls';
 import Image from 'next/image';
 import React from 'react';
 

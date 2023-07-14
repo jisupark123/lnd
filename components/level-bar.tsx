@@ -1,5 +1,5 @@
 import { Level, levelFromLevelScore } from '@/libs/domain/level';
-import { cls } from '@/utils/cls';
+import { cls } from '@/libs/client/cls';
 import React from 'react';
 
 interface Props {

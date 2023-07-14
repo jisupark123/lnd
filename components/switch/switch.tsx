@@ -1,4 +1,4 @@
-import { cls } from '@/utils/cls';
+import { cls } from '@/libs/client/cls';
 import React from 'react';
 import styles from './switch.module.css';
 import { ComponentSize } from '@/types/component-size';
