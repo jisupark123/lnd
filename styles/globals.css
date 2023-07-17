@@ -18,6 +18,14 @@ html {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  @apply bg-bg_1;
+}
+
+input {
+  outline: none;
+}
+
+/* 모달창 띄울 때 스크롤 방지 */
+.modal-open {
+  overflow: hidden;
 }
