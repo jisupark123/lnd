@@ -32,6 +32,8 @@ model Problem {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   levelScore  Float // 레벨 점수
+  type        String    @db.VarChar(10) // 사활 | 맥
+  result      String    @db.VarChar(20) // 문제 결과 (죽이는 문제 | 살리는 문제)
   format      Json // 문제 형식
   createdUser User      @relation(fields: [userId], references: [id], onUpdate: Cascade)
   userId      Int
