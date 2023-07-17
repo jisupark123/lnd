@@ -15,7 +15,7 @@ import cookie from '@/libs/server/cookie';
 
 // DB에 존재하는 유저 가져오기
 async function getExistUserFromDB(email: string) {
-  return await client.user.findFirst({ where: { email } });
+  return await client.user.findUnique({ where: { email } });
 }
 
 // 새로운 User 생성
