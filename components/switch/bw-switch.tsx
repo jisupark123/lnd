@@ -1,11 +1,11 @@
 import { StoneColor } from '@/libs/domain/baduk/baduk';
 import { cls } from '@/libs/client/cls';
 import React from 'react';
-import styles from './bwSwitch.module.css';
+import styles from './bw-switch.module.css';
 
 interface Props {
   mode: StoneColor;
-  toggleFn?: () => void;
+  toggleFn: () => void;
 }
 
 const BwSwitch: React.FC<Props> = ({ mode, toggleFn }) => {

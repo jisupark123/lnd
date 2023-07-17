@@ -11,8 +11,8 @@ const CheckBox: React.FC<Props> = ({ checked, toggleFn }) => {
   return (
     <div
       className={cls(
-        'w-16 h-16 flex justify-center items-center rounded-3 border-[1.5px] border-solid border-main select-none cursor-pointer',
-        checked ? 'bg-main' : 'bg-white',
+        'w-16 h-16 flex justify-center items-center rounded-3 border-[1.5px] border-solid border-primary select-none cursor-pointer',
+        checked ? 'bg-primary' : 'bg-white',
       )}
       onClick={toggleFn}
     >

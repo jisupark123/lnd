@@ -1,12 +1,13 @@
 import React, { HTMLAttributes, useEffect, useState } from 'react';
 import Image from 'next/image';
+import { cls } from '@/libs/client/cls';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  title: string;
+  contents: React.ReactNode;
   children: React.ReactNode;
 }
 
-const DropDownMenu: React.FC<Props> = ({ title, children, ...props }) => {
+const DropDownMenu: React.FC<Props> = ({ contents, children, ...props }) => {
   const [showDropDown, setShowDropDown] = useState(false);
   useEffect(() => {
     const closeDropDown = () => setShowDropDown(false);
@@ -22,14 +23,7 @@ const DropDownMenu: React.FC<Props> = ({ title, children, ...props }) => {
   };
   return (
     <div>
-      <div
-        style={{ ...props.style }}
-        className='h-50 flex justify-between items-center px-14 bg-white rounded-8 cursor-pointer select-none'
-        onClick={handleOnClickMenu}
-      >
-        <span className='text-16 font-bold text-main'>{title}</span>
-        <Image src={'/icons/chevron-down.svg'} alt='레벨 선택 버튼' width={10} height={6} />
-      </div>
+      <div onClick={handleOnClickMenu}>{contents}</div>
       <div className='relative'>{showDropDown && children}</div>
     </div>
   );

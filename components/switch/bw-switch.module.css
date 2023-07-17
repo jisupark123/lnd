@@ -14,7 +14,7 @@
 
 @keyframes k--color-black {
   from {
-    @apply bg-white text-main;
+    @apply bg-white text-primary;
   }
   to {
     @apply bg-black text-white;
@@ -25,13 +25,13 @@
     @apply bg-black text-white;
   }
   to {
-    @apply bg-white text-main;
+    @apply bg-white text-primary;
   }
 }
 
 @keyframes k--move-black {
   from {
-    @apply left-72 bg-main;
+    @apply left-72 bg-primary;
   }
   to {
     @apply left-4 bg-white;
@@ -42,6 +42,6 @@
     @apply left-4 bg-white;
   }
   to {
-    @apply left-72 bg-main;
+    @apply left-72 bg-primary;
   }
 }
