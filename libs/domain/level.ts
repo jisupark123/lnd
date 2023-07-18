@@ -21,6 +21,30 @@ export function levelFromLevelScore(levelScore: number): { level: Level; grade: 
   return { level: 'master', grade: 5 }; // 마스터 등급은 1~5가 없음
 }
 
+// level -> levelScore
+// grade는 1로 통일
+export function levelToLevelScore(level: Level): number {
+  if (level === 'bronze') {
+    return 0;
+  }
+  if (level === 'silver') {
+    return 5000;
+  }
+  if (level === 'gold') {
+    return 10000;
+  }
+  if (level === 'platinum') {
+    return 15000;
+  }
+  if (level === 'diamond') {
+    return 20000;
+  }
+  if (level === 'ruby') {
+    return 25000;
+  }
+  return 30000;
+}
+
 export const levelColor: { [key: string]: string } = {
   Bronze: '',
 };

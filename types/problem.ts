@@ -8,10 +8,10 @@ export interface ProblemFormat {
   firstTurn: StoneColor; // 흑선 or 백선
   shape: Move[]; // 문제 형태
   correctAnswers: Move[][]; // 정답
-  wrongAnswers?: Move[][]; // 오답
-  variations?: {
-    // 변화도
-  };
+  wrongAnswers: Move[][] | null; // 오답
+  // variations?: {
+  //   // 변화도
+  // };
 }
 
 interface Coordinate {
@@ -19,6 +19,6 @@ interface Coordinate {
   y: number;
 }
 
-interface Move extends Coordinate {
+export interface Move extends Coordinate {
   stoneColor: StoneColor;
 }

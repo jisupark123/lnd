@@ -220,6 +220,7 @@ export interface BoardUiConfigs {
 interface Props extends BoardUiConfigs {
   size: number;
   showSequences?: boolean;
+  showCurrMoveMark?: boolean;
   fontFamily?: string;
 }
 
@@ -230,6 +231,7 @@ const BoardUi: React.FC<Props> = ({
   currMove,
   nextTurn,
   showSequences,
+  showCurrMoveMark,
   fontFamily,
   addMove,
 }) => {
@@ -266,7 +268,7 @@ const BoardUi: React.FC<Props> = ({
     boardUiTools.upscaleCanvas(canvas, ctx, size);
     boardUiTools.initBoard(ctx, board, size);
     boardUiTools.drawStones(ctx, size, board.dimensions, board);
-    if (currMove) {
+    if (currMove && showCurrMoveMark) {
       boardUiTools.drawMark(ctx, size, board.dimensions, currMove);
     }
     if (showSequences) {

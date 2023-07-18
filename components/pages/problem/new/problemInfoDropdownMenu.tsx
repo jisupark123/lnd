@@ -6,7 +6,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   title: string;
 }
 
-const ProblemInfoMenu: React.FC<Props> = ({ title, ...props }) => {
+const ProblemInfoDropdownMenu: React.FC<Props> = ({ title, ...props }) => {
   return (
     <div
       className={cls(
@@ -21,4 +21,4 @@ const ProblemInfoMenu: React.FC<Props> = ({ title, ...props }) => {
   );
 };
 
-export default ProblemInfoMenu;
+export default ProblemInfoDropdownMenu;

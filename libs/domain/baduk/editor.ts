@@ -29,7 +29,7 @@ export class Editor extends Record(
     nextTurn: 'BLACK' as StoneColor,
     changeTurnMode: 'auto' as ChangeTurnMode,
   },
-  'Editor'
+  'Editor',
 ) {
   constructor({
     dimensions,
@@ -103,7 +103,7 @@ export const editorToolkit = {
   // addMove에 실패하면 에러 대신 원래 참조를 반환하는 함수
   addMoveToEditorWithoutError(editor: Editor, move: Move): Editor {
     try {
-      return this.addMove(editor, move);
+      return editorToolkit.addMove(editor, move);
     } catch {
       return editor;
     }
@@ -112,7 +112,7 @@ export const editorToolkit = {
   // 유저에게 보여줄 장면 & 정보를 가져오는 함수
   currentScene(editor: Editor) {
     const scene = editor.scenes.get(editor.head)!;
-    const sequences = this.getSequences(editor);
+    const sequences = editorToolkit.getSequences(editor);
     const currMove = scene.newMove;
 
     const totalMoveCount = sequences.size;
