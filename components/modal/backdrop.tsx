@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   children?: React.ReactNode;
+  onBackdropClick?: () => void;
 }
 
-const BackDrop: React.FC<Props> = ({ children }) => {
+const BackDrop: React.FC<Props> = ({ children, onBackdropClick }) => {
   useEffect(() => {
     document.body.classList.add('modal-open');
     return () => {
@@ -12,7 +13,10 @@ const BackDrop: React.FC<Props> = ({ children }) => {
     };
   });
   return (
-    <div className='fixed top-0 left-0 w-full h-full bg-backdrop z-backdrop_1 flex justify-center items-center'>
+    <div
+      className='fixed top-0 left-0 w-full h-full bg-backdrop z-backdrop_1 flex justify-center items-center'
+      onClick={onBackdropClick}
+    >
       {children ?? null}
     </div>
   );

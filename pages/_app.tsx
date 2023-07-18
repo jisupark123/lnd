@@ -1,3 +1,4 @@
+import AlertView from '@/components/modal/alertView';
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
             window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
           }}
         ></Script>
+        <AlertView />
         <Component {...pageProps} />
       </QueryClientProvider>
     </RecoilRoot>
