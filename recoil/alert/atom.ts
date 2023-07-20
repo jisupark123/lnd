@@ -4,6 +4,7 @@ import { atom } from 'recoil';
 
 export type AlertOptions = {
   alertViewTitle: string;
+  alertViewDesc?: string;
   alertViewType: AlertViewType;
   alertActions: AlertActionOptions[];
   closeWithTouchBackdrop?: boolean;
@@ -18,7 +19,8 @@ export const initialAlertState: AlertStateType = {
   show: false,
   alertOptions: {
     alertViewTitle: '',
-    alertViewType: 'default',
+    alertViewDesc: undefined,
+    alertViewType: 'normal',
     alertActions: [],
   },
 };

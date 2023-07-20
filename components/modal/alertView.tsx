@@ -5,13 +5,13 @@ import useAlert from '@/recoil/alert/useAlert';
 import AlertAction from './alertAction';
 import BackDrop from './backdrop';
 
-export type AlertViewType = 'default' | 'destructive' | 'normal';
+export type AlertViewType = 'primary' | 'destructive' | 'normal';
 
 export default function AlertView() {
   const {
     alert: {
       show,
-      alertOptions: { alertViewTitle, alertViewType, alertActions, closeWithTouchBackdrop },
+      alertOptions: { alertViewTitle, alertViewDesc, alertViewType, alertActions, closeWithTouchBackdrop },
     },
     closeAlert,
   } = useAlert();
@@ -24,7 +24,7 @@ export default function AlertView() {
             <div
               className={cls(
                 'p-16 font-semibold text-16 border-b-1 border-solid border-bg_1',
-                alertViewType === 'default'
+                alertViewType === 'primary'
                   ? 'text-primary'
                   : alertViewType === 'destructive'
                   ? 'text-danger'
@@ -33,6 +33,7 @@ export default function AlertView() {
             >
               {alertViewTitle}
             </div>
+            {alertViewDesc && <div className='mt-15 text-14'>{alertViewDesc}</div>}
             <div className='p-16 pt-24 flex justify-end items-end gap-10'>
               {alertActions.map((action, i) => (
                 <AlertAction key={i} {...action} closeAlert={closeAlert} />
