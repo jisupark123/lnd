@@ -3,19 +3,14 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import AppResponseType from '@/types/appResponseType';
 import client from '@/libs/server/prismaClient';
 import makeJwtToken from '@/libs/server/makeJwtToken';
-import { setCookie } from 'cookies-next';
-import {
-  JWT_ACCESS_TOKEN_COOKIE_KEY,
-  JWT_ACCESS_TOKEN_EXPIRES_IN_NUMBER,
-  JWT_REFRESH_TOKEN_COOKIE_KEY,
-  JWT_REFRESH_TOKEN_EXPIRES_IN_NUMBER,
-} from '@/libs/domain/jwt';
+import { JWT_ACCESS_TOKEN_EXPIRES_IN, JWT_REFRESH_TOKEN_EXPIRES_IN } from '@/libs/domain/jwt';
 import { getAccessTokenFromKakao, getUserInfoFromKakao } from '@/apis/login/kakao';
 import cookie from '@/libs/server/cookie';
+import { JwtPayloadType } from '@/types/jwtPayloadType';
 
 // DB에 존재하는 유저 가져오기
 async function getExistUserFromDB(email: string) {
-  return await client.user.findUnique({ where: { email } });
+  return await client.user.findUnique({ where: { email }, include: { authorities: true } });
 }
 
 // 새로운 User 생성
@@ -26,6 +21,7 @@ async function createNewAccount(email: string) {
       email,
       loginFrom: 'kakao',
     },
+    include: { authorities: true },
   });
   return newUser;
 }
@@ -66,16 +62,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
 
   // DB에서 회원 정보 가져오기
   let user = await getExistUserFromDB(email);
-
   // 존재하지 않는 회원이면 새로 생성
   if (!user) {
     user = await createNewAccount(email);
   }
 
   // Access Token, Refresh Token 생성
-  const newAccessToken = makeJwtToken({ userId: user.id }, '2d');
-  const newRefreshToken = makeJwtToken({ userId: user.id }, '14d');
-
+  const jwtPayload: JwtPayloadType = {
+    userId: user.id,
+    authorities: user.authorities.map((autority) => autority.name),
+  };
+  const newAccessToken = makeJwtToken({ jwtPayload }, JWT_ACCESS_TOKEN_EXPIRES_IN);
+  const newRefreshToken = makeJwtToken({ jwtPayload }, JWT_REFRESH_TOKEN_EXPIRES_IN);
   // DB에 Refresh Token upsert (생성 or 업데이트)
   await upsertNewRefreshToken(user.id, newRefreshToken);
 
@@ -83,7 +81,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
   cookie.setAccessToken(req, res, newAccessToken);
   cookie.setRefreshToken(req, res, newRefreshToken);
 
-  res.status(200).json({
+  return res.status(200).json({
     isSuccess: true,
     message: '성공적으로 로그인 되었습니다',
     result: {},

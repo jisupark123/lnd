@@ -4,6 +4,21 @@ enum LoginFrom {
   naver
 }
 
+enum Level {
+  bronze
+  silver
+  gold
+  platinum
+  diamond
+  ruby
+  master
+}
+
+enum AuthorityName {
+  systemAdmin // 시스템을 전반적으로 관리하는 권한
+  problemUpload // 문제 업로드 권한
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,24 +36,27 @@ model User {
   nickname        String        @unique @db.VarChar(50)
   profileImage    String?
   loginFrom       LoginFrom
+  level           Level         @default(bronze) // 레벨 
   levelScore      Float         @default(0) // 레벨 점수 
   createdProblems Problem[]
   attempts        Attempt[]
   refreshToken    RefreshToken?
+  authorities     Authority[]
 }
 
 model Problem {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  level       Level // 레벨
   levelScore  Float // 레벨 점수
   type        String    @db.VarChar(10) // 사활 | 맥
   result      String    @db.VarChar(20) // 문제 결과 (죽이는 문제 | 살리는 문제)
   hint        String?   @db.VarChar(300) // 힌트(100자 제한)
   format      Json // 문제 형식
-  createdUser User      @relation(fields: [userId], references: [id], onUpdate: Cascade)
-  userId      Int
-  attempt     Attempt[]
+  createdUser User?     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: SetNull) // 문제 만든 사람이 탈퇴해도 문제는 남아있게
+  userId      Int?
+  attempts    Attempt[]
 
   @@index([userId])
 }
@@ -46,9 +64,9 @@ model Problem {
 model Attempt {
   id          Int      @id @default(autoincrement())
   attemptedAt DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   userId      Int
-  problem     Problem  @relation(fields: [problemId], references: [id])
+  problem     Problem  @relation(fields: [problemId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   problemId   Int
   solved      Boolean
 
@@ -58,9 +76,18 @@ model Attempt {
 
 model RefreshToken {
   id     Int    @id @default(autoincrement())
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   userId Int    @unique
-  token  String
+  token  String @db.VarChar(1000)
+}
+
+model Authority {
+  id     Int           @id @default(autoincrement())
+  user   User          @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId Int
+  name   AuthorityName
+
+  @@index([userId])
 }
 
 // model Notification {
