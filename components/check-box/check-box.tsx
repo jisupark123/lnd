@@ -1,6 +1,7 @@
 import { cls } from '@/libs/client/cls';
 import Image from 'next/image';
 import React from 'react';
+import CheckIcon from '../../public/icons/check.svg';
 
 interface Props {
   checked: boolean;
@@ -16,7 +17,7 @@ const CheckBox: React.FC<Props> = ({ checked, toggleFn }) => {
       )}
       onClick={toggleFn}
     >
-      <Image src={'/icons/check.svg'} alt='check' width={8} height={8} />
+      <CheckIcon width='8' color='white' />
     </div>
   );
 };

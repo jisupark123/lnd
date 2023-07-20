@@ -1,16 +1,17 @@
 import AppResponseType from '@/types/appResponseType';
+import { LoginFrom } from '@prisma/client';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import React from 'react';
 import { QueryOptions, useQuery } from 'react-query';
 
 interface UserResponseType {
-  id: 3;
-  createdAt: '2023-07-14T05:50:39.489Z';
-  email: 'a00366@naver.com';
-  nickname: 'a00366@naver.com';
-  profileImage: null;
-  loginFrom: 'kakao';
-  levelScore: 0;
+  id: number;
+  createdAt: string;
+  email: string;
+  nickname: string;
+  profileImage: string | null;
+  loginFrom: LoginFrom;
+  levelScore: number;
 }
 
 type ResponseType = AppResponseType<UserResponseType>;

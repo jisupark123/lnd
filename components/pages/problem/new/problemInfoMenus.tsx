@@ -1,4 +1,4 @@
-import DropDownMenu from '@/components/menu/drop-down-menu';
+import DropDownMenu from '@/components/menu/dropDownMenu';
 import React, { HTMLAttributes } from 'react';
 import ProblemInfoDropdownMenu from './problemInfoDropdownMenu';
 import CheckBoxDropDown, { CheckBoxDropDownMenu } from '@/components/menu/check-box_drop-down';

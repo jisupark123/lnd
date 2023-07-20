@@ -74,7 +74,7 @@ const New = () => {
         alertViewTitle: '차례를 변경하면 정답도 / 오답도가 초기화됩니다.',
         alertViewType: 'destructive',
         alertActions: [
-          { title: '취소', style: 'default', handler: null },
+          { title: '취소', style: 'primary', handler: null },
           {
             title: '확인',
             style: 'destructive',
@@ -120,7 +120,7 @@ const New = () => {
         alertViewType: 'destructive',
         closeWithTouchBackdrop: true,
         alertActions: [
-          { title: '취소', style: 'default', handler: null },
+          { title: '취소', style: 'primary', handler: null },
           {
             title: '확인',
             style: 'destructive',
@@ -156,7 +156,7 @@ const New = () => {
     mutate(reqBody, {
       onSuccess: () => {
         showAlert({
-          alertViewType: 'default',
+          alertViewType: 'primary',
           alertViewTitle: '성공적으로 업로드되었습니다!',
           closeWithTouchBackdrop: true,
           alertActions: [
@@ -169,7 +169,7 @@ const New = () => {
             },
             {
               title: '다음 문제 만들기',
-              style: 'default',
+              style: 'primary',
               handler: () => {
                 router.reload();
               },

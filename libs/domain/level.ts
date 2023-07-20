@@ -10,6 +10,16 @@ export type Level = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'rub
 
 //
 
+export const levelRange = {
+  bronze: { from: 0, to: 4999 },
+  silver: { from: 5000, to: 9999 },
+  gold: { from: 10000, to: 14999 },
+  platinum: { from: 15000, to: 19999 },
+  diamond: { from: 20000, to: 24999 },
+  ruby: { from: 25000, to: 29999 },
+  master: { from: 30000, to: 10000000 },
+};
+
 export function levelFromLevelScore(levelScore: number): { level: Level; grade: number } {
   const calcGrade = (score: number) => Math.floor(score / 1000) + 1;
   if (levelScore < 5000) return { level: 'bronze', grade: calcGrade(levelScore) };

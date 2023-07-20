@@ -1,6 +1,4 @@
 import React, { HTMLAttributes, useEffect, useState } from 'react';
-import Image from 'next/image';
-import { cls } from '@/libs/client/cls';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   contents: React.ReactNode;
