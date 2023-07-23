@@ -28,9 +28,7 @@ export async function getAccessTokenFromKakao(authCode: string) {
 }
 
 interface KakaoUserInfoResponse {
-  kakao_account: {
-    email: string;
-  };
+  id: bigint;
 }
 
 // AccessToken으로 카카오 서버에서 유저의 정보를 받아오기

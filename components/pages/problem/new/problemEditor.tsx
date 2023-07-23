@@ -1,4 +1,3 @@
-import useEditor from '@/hooks/useEditor';
 import { Editor, editorToolkit } from '@/libs/domain/baduk/editor';
 import React, { HTMLAttributes } from 'react';
 import BoardUi from '@/components/baduk/boardUi';
@@ -13,6 +12,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   title?: string;
   showDeleteBtn?: boolean;
   showSequences?: boolean;
+  showCurrMoveMark?: boolean;
   setEditor: (newEditor: Editor) => void;
   deleteEditor?: () => void;
 }
@@ -24,6 +24,7 @@ const ProblemEditor: React.FC<Props> = ({
   title,
   showDeleteBtn,
   showSequences,
+  showCurrMoveMark,
   setEditor,
   deleteEditor,
   ...props
@@ -40,7 +41,13 @@ const ProblemEditor: React.FC<Props> = ({
         {showDeleteBtn && deleteEditor && <DeleteBtn onClick={deleteEditor} />}
       </div>
       <EditorTools editor={editor} hasBwSwitch={hasBwSwitch} setEditor={setEditor} />
-      <BoardUi {...currentScene} addMove={addMove} size={editorSize} showSequences={showSequences} />
+      <BoardUi
+        {...currentScene}
+        addMove={addMove}
+        size={editorSize}
+        showSequences={showSequences}
+        showCurrMoveMark={showCurrMoveMark}
+      />
     </div>
   );
 };

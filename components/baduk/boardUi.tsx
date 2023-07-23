@@ -1,3 +1,4 @@
+import { TAILWIND_sm } from '@/constants/mediaQuery';
 import { BLACK, Board, Color, Coordinate, Move, StoneColor, isExistStone } from '@/libs/domain/baduk/baduk';
 import { List, Set } from 'immutable';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
@@ -220,6 +221,7 @@ export interface BoardUiConfigs {
 interface Props extends BoardUiConfigs {
   size: number;
   showSequences?: boolean;
+  showCurrMoveMark?: boolean;
   fontFamily?: string;
 }
 
@@ -230,6 +232,7 @@ const BoardUi: React.FC<Props> = ({
   currMove,
   nextTurn,
   showSequences,
+  showCurrMoveMark,
   fontFamily,
   addMove,
 }) => {
@@ -263,10 +266,14 @@ const BoardUi: React.FC<Props> = ({
     const ctx = canvas.current?.getContext('2d');
     if (!ctx) return;
 
+    if (size < TAILWIND_sm) {
+      boardConfigs.lineWidth = 0.5;
+    }
+
     boardUiTools.upscaleCanvas(canvas, ctx, size);
     boardUiTools.initBoard(ctx, board, size);
     boardUiTools.drawStones(ctx, size, board.dimensions, board);
-    if (currMove) {
+    if (currMove && showCurrMoveMark) {
       boardUiTools.drawMark(ctx, size, board.dimensions, currMove);
     }
     if (showSequences) {

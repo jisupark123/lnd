@@ -10,6 +10,16 @@ export type Level = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'rub
 
 //
 
+export const levelRange = {
+  bronze: { from: 0, to: 4999 },
+  silver: { from: 5000, to: 9999 },
+  gold: { from: 10000, to: 14999 },
+  platinum: { from: 15000, to: 19999 },
+  diamond: { from: 20000, to: 24999 },
+  ruby: { from: 25000, to: 29999 },
+  master: { from: 30000, to: 10000000 },
+};
+
 export function levelFromLevelScore(levelScore: number): { level: Level; grade: number } {
   const calcGrade = (score: number) => Math.floor(score / 1000) + 1;
   if (levelScore < 5000) return { level: 'bronze', grade: calcGrade(levelScore) };
@@ -19,6 +29,30 @@ export function levelFromLevelScore(levelScore: number): { level: Level; grade: 
   if (levelScore < 25000) return { level: 'diamond', grade: calcGrade(levelScore - 20000) };
   if (levelScore < 30000) return { level: 'ruby', grade: calcGrade(levelScore - 25000) };
   return { level: 'master', grade: 5 }; // 마스터 등급은 1~5가 없음
+}
+
+// level -> levelScore
+// grade는 1로 통일
+export function levelToLevelScore(level: Level): number {
+  if (level === 'bronze') {
+    return 0;
+  }
+  if (level === 'silver') {
+    return 5000;
+  }
+  if (level === 'gold') {
+    return 10000;
+  }
+  if (level === 'platinum') {
+    return 15000;
+  }
+  if (level === 'diamond') {
+    return 20000;
+  }
+  if (level === 'ruby') {
+    return 25000;
+  }
+  return 30000;
 }
 
 export const levelColor: { [key: string]: string } = {

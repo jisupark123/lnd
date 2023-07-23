@@ -1,6 +1,6 @@
 import { List, Record } from 'immutable';
 import { Board, Color, Coordinate, Move, Scene, StoneColor, makeScenesByMoves } from './baduk';
-import { ProblemFormat } from '@/types/problem';
+import * as format from '@/types/problem';
 import { Basis } from './basis';
 
 export class Problem extends Record({
@@ -109,8 +109,30 @@ export const problemToolkit = {
     return { status: 'progress', nextMove };
   },
 
+  // Board의 모든 Move들을 Format의 Move 객체들로 변환
+  // 순서는 보장 X
+  boardToFormatMoves(board: Board): format.Move[] {
+    return board.moves
+      .keySeq()
+      .toArray()
+      .map((coordinate) => ({
+        x: coordinate.x,
+        y: coordinate.y,
+        stoneColor: board.moves.get(coordinate) as StoneColor,
+      }));
+  },
+  scenesToFormatMoves(scenes: List<Scene>): format.Move[] {
+    return scenes
+      .map((scene) => ({
+        x: scene.newMove!.coordinate.x,
+        y: scene.newMove!.coordinate.y,
+        stoneColor: scene.newMove!.color as StoneColor,
+      }))
+      .toArray();
+  },
+
   // database의 format을 Problem 클래스로 변환
-  formatToProblem(format: ProblemFormat): Problem {
+  formatToProblem(format: format.ProblemFormat): Problem {
     return new Problem({
       dimensions: format.dimensions,
       shape: format.shape.map((move) => new Move(new Coordinate(move.x, move.y), move.stoneColor as Color)),
@@ -122,5 +144,48 @@ export const problemToolkit = {
         lst.map((move) => new Move(new Coordinate(move.x, move.y), move.stoneColor as Color)),
       ),
     });
+  },
+
+  // Problem 클래스를 format으로 변환
+  problemToFormat(problem: Problem): format.ProblemFormat {
+    const { dimensions, shape, firstTurn, correctAnswers, wrongAnswers } = problem;
+
+    const correctAnswersFormat = correctAnswers
+      .map((answer) =>
+        answer
+          .map((scene) => {
+            const { newMove } = scene;
+            const move: { x: number; y: number; stoneColor: StoneColor } = {
+              x: scene.newMove!.coordinate.x,
+              y: scene.newMove!.coordinate.y,
+              stoneColor: scene.newMove!.color as StoneColor,
+            };
+            return move;
+          })
+          .toArray(),
+      )
+      .toArray();
+    const wrongAnswersFormat = wrongAnswers
+      .map((answer) =>
+        answer
+          .map((scene) => {
+            const { newMove } = scene;
+            const move: { x: number; y: number; stoneColor: StoneColor } = {
+              x: scene.newMove!.coordinate.x,
+              y: scene.newMove!.coordinate.y,
+              stoneColor: scene.newMove!.color as StoneColor,
+            };
+            return move;
+          })
+          .toArray(),
+      )
+      .toArray();
+    return {
+      dimensions,
+      firstTurn,
+      shape: problemToolkit.boardToFormatMoves(shape),
+      correctAnswers: correctAnswersFormat,
+      wrongAnswers: wrongAnswersFormat,
+    };
   },
 };

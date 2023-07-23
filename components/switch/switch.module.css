@@ -22,12 +22,12 @@
     @apply bg-disable;
   }
   to {
-    @apply bg-main;
+    @apply bg-primary;
   }
 }
 @keyframes k--bg-off {
   from {
-    @apply bg-main;
+    @apply bg-primary;
   }
   to {
     @apply bg-disable;

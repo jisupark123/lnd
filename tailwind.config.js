@@ -11,6 +11,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  mode: 'jit',
   theme: {
     extend: {
       borderWidth: px0_10,
@@ -19,6 +20,8 @@ module.exports = {
       lineHeight: px0_100,
       width: px0_1000,
       height: px0_1000,
+      maxWidth: px0_1000,
+      maxHeight: px0_1000,
       minWidth: px0_1000,
       minHeight: px0_1000,
       spacing: px0_200,
@@ -27,6 +30,7 @@ module.exports = {
         primary: '#6042F8',
         bg_1: '#F0F0F5',
         gray: '#828086',
+        gray_dark: '#3F3F3F',
         disable: '#C1C1C1',
         danger: '#E60F6C',
         bronze: '#AD5600',
@@ -39,6 +43,7 @@ module.exports = {
         backdrop: 'rgba(0,0,0,0.7)',
       },
       zIndex: {
+        header: 80,
         dropdown: 90,
         backdrop_1: 100,
         backdrop_2: 101,
@@ -47,6 +52,7 @@ module.exports = {
       boxShadow: {
         shadow1: '10px 10px 20px 1px rgb(0 0 0 / 5%)',
         shadow2: '0px 16px 32px 0px rgba(0, 0, 0, 0.16)',
+        neumorphism: '0px 10px 20px 0px rgba(0, 0, 0, 0.16)',
       },
     },
   },

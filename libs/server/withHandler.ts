@@ -1,18 +1,19 @@
 import AppResponseType from '@/types/appResponseType';
 import { NextApiRequest, NextApiResponse } from 'next';
-import JwtPayloadType from '@/types/jwtPayloadType';
+import { JwtPayloadType } from '@/types/jwtPayloadType';
 import client from './prismaClient';
 import makeJwtToken from './makeJwtToken';
 import { JWT_ACCESS_TOKEN_EXPIRES_IN } from '../domain/jwt';
 import verifyJwtOrNull from './verifyJwtOrNull';
 import cookie from './cookie';
+import verifyUser from './verifyUser';
 
 type MethodType = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 interface ConfigType {
   methods: MethodType[];
   privateMethods?: MethodType[];
-  handler: (req: NextApiRequest, res: NextApiResponse) => void;
+  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 }
 
 /**
@@ -35,39 +36,16 @@ function withHandler({ methods, privateMethods, handler }: ConfigType) {
     // 2-2. RefreshToken 만료 -> 401 반환
 
     if (privateMethods?.includes(req.method as MethodType)) {
-      const { accessToken, refreshToken } = req.cookies;
-
-      const decodedAccessToken = typeof accessToken === 'string' ? verifyJwtOrNull<JwtPayloadType>(accessToken) : null;
-
-      // AccessToken 유효
-      if (decodedAccessToken) {
-        const { userId } = decodedAccessToken;
-        req.headers.userId = String(userId);
-
-        // AccessToken 만료
+      const { verified, userId, authorities } = await verifyUser(req, res);
+      if (verified) {
+        req.headers.userId = String(userId!);
+        req.headers.authorities = authorities;
       } else {
-        // verify & db에서 값 비교 두가지를 동시에 진행
-        const decodedRefreshToken =
-          typeof refreshToken === 'string' ? verifyJwtOrNull<JwtPayloadType>(refreshToken as string) : null;
-        const isRefreshTokenValid =
-          decodedRefreshToken &&
-          (await client.refreshToken.findUnique({ where: { userId: decodedRefreshToken.userId } }));
-
-        // RefreshToken 유효
-        if (isRefreshTokenValid) {
-          const { userId } = decodedRefreshToken;
-          const newAccessToken = makeJwtToken({ userId }, JWT_ACCESS_TOKEN_EXPIRES_IN);
-          cookie.setAccessToken(req, res, newAccessToken);
-          req.headers.userId = String(userId);
-
-          // RefreshToken 만료
-        } else {
-          return res.status(401).json({
-            isSuccess: false,
-            message: '유효하지 않거나 만료된 jwt 토큰입니다',
-            result: {},
-          });
-        }
+        return res.status(401).json({
+          isSuccess: false,
+          message: '유효하지 않거나 만료된 jwt 토큰입니다',
+          result: {},
+        });
       }
     }
 

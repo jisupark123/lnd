@@ -1,6 +1,6 @@
-import { BoardUiConfigs } from '@/components/boardUi';
-import { Move } from '@/lib/baduk';
-import { Editor, editorToolkit } from '@/lib/editor';
+import { BoardUiConfigs } from '@/components/baduk/boardUi';
+import { Move } from '@/libs/domain/baduk/baduk';
+import { Editor, editorToolkit } from '@/libs/domain/baduk/editor';
 import { useState } from 'react';
 
 export interface UseEditorReturnType {
@@ -23,11 +23,11 @@ const useEditor = (initialEditor: Editor) => {
   const addMove = (move: Move) => {
     setEditor((prev) => editorToolkit.addMoveToEditorWithoutError(prev, move));
   };
-  const changeNextTurn = () => {
-    setEditor((prev) => editorToolkit.changeNextTurn(prev));
+  const toggleChangeTurnStoneColor = () => {
+    setEditor((prev) => editorToolkit.toggleChangeTurnStoneColor(prev));
   };
-  const changeTurnMode = () => {
-    setEditor((prev) => editorToolkit.changeTurnMode(prev));
+  const toggleChangeTurnMode = () => {
+    setEditor((prev) => editorToolkit.toggleChangeTurnMode(prev));
   };
   const moveFirst = () => {
     setEditor((prev) => editorToolkit.moveFirst(prev));
@@ -43,8 +43,8 @@ const useEditor = (initialEditor: Editor) => {
     editor,
     boardUIConfigs: { board, sequences, currMove, nextTurn, addMove },
     deadStonesCount,
-    changeNextTurn,
-    changeTurnMode,
+    toggleChangeTurnStoneColor,
+    toggleChangeTurnMode,
     moveFirst,
     moveLast,
     moveTo,
