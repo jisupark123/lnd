@@ -107,7 +107,6 @@ export default function Home() {
     router.push(`/?${filtersToParams(newFilter)}`, undefined, { scroll: false });
   };
   const handleToggleOnlySolvedSwitch = () => {
-    console.log(problemFilter.onlyUnsolved);
     const newFilter = { ...problemFilter, onlyUnsolved: !problemFilter.onlyUnsolved };
     setProblemFilter(newFilter);
     router.push(`/?${filtersToParams(newFilter)}`, undefined, { scroll: false });

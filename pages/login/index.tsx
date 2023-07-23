@@ -3,10 +3,13 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import React from 'react';
 import KakaoBubbleIcon from '../../public/icons/kakao-bubble.svg';
+import { KAKAO_REDIRECT_URI_DEPLOY, KAKAO_REDIRECT_URI_DEVELOPMENT } from '@/constants/redirectUri';
 
 const Login: NextPage = () => {
   const handleKakaoLogin = () => {
-    window.Kakao.Auth.authorize({ redirectUri: 'http://localhost:3000/login/kakao-callback' });
+    window.Kakao.Auth.authorize({
+      redirectUri: process.env.NODE_ENV === 'development' ? KAKAO_REDIRECT_URI_DEVELOPMENT : KAKAO_REDIRECT_URI_DEPLOY,
+    });
   };
   return (
     <Layout>
