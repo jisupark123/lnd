@@ -13,10 +13,10 @@ const cookie = {
       req,
       res,
       maxAge: JWT_ACCESS_TOKEN_EXPIRES_IN_NUMBER,
-      path: '/',
+      // path: '/',
       httpOnly: true,
       sameSite: true,
-      secure: true,
+      // secure: true, // safari 적용 이슈로 일단 꺼놨습니다.
     });
   },
   setRefreshToken: (req: NextApiRequest, res: NextApiResponse, token: string) => {
@@ -24,10 +24,10 @@ const cookie = {
       req,
       res,
       maxAge: JWT_REFRESH_TOKEN_EXPIRES_IN_NUMBER,
-      path: '/',
+      // path: '/',
       httpOnly: true,
       sameSite: true,
-      secure: true,
+      // secure: true,
     });
   },
 };

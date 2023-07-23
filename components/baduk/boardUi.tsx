@@ -1,3 +1,4 @@
+import { TAILWIND_sm } from '@/constants/mediaQuery';
 import { BLACK, Board, Color, Coordinate, Move, StoneColor, isExistStone } from '@/libs/domain/baduk/baduk';
 import { List, Set } from 'immutable';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
@@ -264,6 +265,10 @@ const BoardUi: React.FC<Props> = ({
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d');
     if (!ctx) return;
+
+    if (size < TAILWIND_sm) {
+      boardConfigs.lineWidth = 0.5;
+    }
 
     boardUiTools.upscaleCanvas(canvas, ctx, size);
     boardUiTools.initBoard(ctx, board, size);

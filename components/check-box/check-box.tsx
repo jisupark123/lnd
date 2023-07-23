@@ -17,7 +17,7 @@ const CheckBox: React.FC<Props> = ({ checked, toggleFn }) => {
       )}
       onClick={toggleFn}
     >
-      <CheckIcon width='8' color='white' />
+      <CheckIcon width='8' height='8' color='white' />
     </div>
   );
 };

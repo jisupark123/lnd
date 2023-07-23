@@ -11,6 +11,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  mode: 'jit',
   theme: {
     extend: {
       borderWidth: px0_10,
@@ -51,6 +52,7 @@ module.exports = {
       boxShadow: {
         shadow1: '10px 10px 20px 1px rgb(0 0 0 / 5%)',
         shadow2: '0px 16px 32px 0px rgba(0, 0, 0, 0.16)',
+        neumorphism: '0px 10px 20px 0px rgba(0, 0, 0, 0.16)',
       },
     },
   },

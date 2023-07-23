@@ -1,7 +1,7 @@
 import { createNewProblem } from '@/apis/problem';
 import Layout from '@/components/layout/layout';
 import ProblemEditor from '@/components/pages/problem/new/problemEditor';
-import ProblemInfoMenus from '@/components/pages/problem/new/problemInfoMenus';
+import ProblemMakerInfoMenus from '@/components/pages/problem/new/problemInfoMenus';
 import Underline from '@/components/underline';
 import { StoneColor } from '@/libs/domain/baduk/baduk';
 import { Editor, editorToolkit } from '@/libs/domain/baduk/editor';
@@ -15,35 +15,37 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { PostProblemReqBody } from '../api/problem';
 import { PROBLEM_HINT_LIMIT } from '@/constants/problem';
+import { useUserQuery } from '@/query/user/useUserQuery';
 
 // 문제 제작은 최종적으로 화면에 나와있는 모양 그대로 업로드된다.
 // Editor로 뒤로가기하면 그 장면이 적용된다.
 
-export interface ProblemInfo {
+export interface ProblemMakerInfo {
   type: ProblemType;
   level: Level;
   firstTurn: StoneColor;
   result: ProblemResult;
 }
 
-const initialProblemInfo: ProblemInfo = {
+const initialProblemMakerInfo: ProblemMakerInfo = {
   type: '사활',
   level: 'gold',
   firstTurn: 'BLACK',
   result: '살리는 문제',
 };
 
-const initialShapeMaker = new Editor({ dimensions: 13, changeTurnMode: 'manual' });
+const initialShapeMaker = new Editor({ dimensions: 13, changeTurnSetting: { mode: 'manual', stoneColor: 'BLACK' } });
 
 const { currentScene } = editorToolkit;
 
 const New = () => {
   const router = useRouter();
+  const { user, isError: isUserError } = useUserQuery();
   const { showAlert } = useAlert();
-  const [problemInfo, setProblemInfo] = useState<ProblemInfo>(initialProblemInfo);
+  const [problemMakerInfo, setProblemMakerInfo] = useState<ProblemMakerInfo>(initialProblemMakerInfo);
   const [shapeMaker, setShapeMaker] = useState(initialShapeMaker);
   const [correctAnswerMakers, setCorrectAnswerMakers] = useState<List<Editor>>(
-    List([new Editor({ dimensions: 13, changeTurnMode: 'auto', nextTurn: problemInfo.firstTurn })]),
+    List([new Editor({ dimensions: 13, firstTurn: problemMakerInfo.firstTurn })]),
   );
   const [wrongAnswerMakers, setWrongAnswerMakers] = useState<List<Editor>>(List([]));
 
@@ -66,7 +68,7 @@ const New = () => {
   // 2-1. 변경되었다면 경고창 띄우기 + 초기화
   // 2-2. else -> 초기화
   const toggleFirstTurn = (newFirstTurn: StoneColor) => {
-    if (newFirstTurn === problemInfo.firstTurn) {
+    if (newFirstTurn === problemMakerInfo.firstTurn) {
       return;
     }
     if (answerMakersChanged) {
@@ -80,14 +82,14 @@ const New = () => {
             style: 'destructive',
             handler: () => {
               resetMakers(shapeMaker);
-              setProblemInfo((prev) => ({ ...prev, firstTurn: newFirstTurn }));
+              setProblemMakerInfo((prev) => ({ ...prev, firstTurn: newFirstTurn }));
             },
           },
         ],
       });
     } else {
       resetMakers(shapeMaker);
-      setProblemInfo((prev) => ({ ...prev, firstTurn: newFirstTurn }));
+      setProblemMakerInfo((prev) => ({ ...prev, firstTurn: newFirstTurn }));
     }
   };
 
@@ -104,8 +106,7 @@ const New = () => {
     new Editor({
       dimensions: shape.dimensions,
       basicBoard: shape.scenes.get(shape.head)?.board,
-      changeTurnMode: 'auto',
-      nextTurn: problemInfo.firstTurn,
+      firstTurn: problemMakerInfo.firstTurn,
     });
 
   // 문제도에 돌이 놓여질 때 실행되는 함수
@@ -135,16 +136,33 @@ const New = () => {
     }
   };
 
+  // editor state를 ProblemFormat 으로 변환
   const makeProblemFormat = (): ProblemFormat => {
     return {
       dimensions: shapeMaker.dimensions,
-      firstTurn: problemInfo.firstTurn,
+      firstTurn: problemMakerInfo.firstTurn,
       shape: problemToolkit.boardToFormatMoves(currentScene(shapeMaker).board),
       correctAnswers: correctAnswerMakers
-        .map((editor) => problemToolkit.boardToFormatMoves(currentScene(editor).board))
+        .map((editor) =>
+          currentScene(editor)
+            .sequences.map((move) => ({
+              x: move.coordinate.x,
+              y: move.coordinate.y,
+              stoneColor: move.color as StoneColor,
+            }))
+            .toArray(),
+        )
         .toArray(),
       wrongAnswers: wrongAnswerMakers
-        .map((editor) => problemToolkit.boardToFormatMoves(currentScene(editor).board))
+        .map((editor) =>
+          currentScene(editor)
+            .sequences.map((move) => ({
+              x: move.coordinate.x,
+              y: move.coordinate.y,
+              stoneColor: move.color as StoneColor,
+            }))
+            .toArray(),
+        )
         .toArray(),
     };
   };
@@ -257,14 +275,13 @@ const New = () => {
       return;
     }
     const hint = hintRef.current?.value.trim() ?? null;
-    console.log(hint);
 
     // 힌트 100자 제한
     if (hint && hint.length > PROBLEM_HINT_LIMIT) {
       alertUploadFailed(`힌트는 100자 이내로 작성해주세요. (현재 ${hint.length}자)`);
     }
 
-    const { level, type, result } = problemInfo;
+    const { level, type, result } = problemMakerInfo;
     const format = makeProblemFormat();
     fetchUploadProblem({ level, type, result, hint, format });
   };
@@ -272,104 +289,114 @@ const New = () => {
   // 차례(흑선/백선) 설정이 변경될 때마다 모든 정답도/실패도에 동기화시키는 함수
   // 로직 상 차례가 변경되면 정답도/실패도가 초기화되지만 동기화시키기 애매해서 이 방식이 더 깔끔하다고 판단함
   useEffect(() => {
-    setCorrectAnswerMakers((prev) => prev.map((maker) => maker.set('nextTurn', problemInfo.firstTurn)));
-    setWrongAnswerMakers((prev) => prev.map((maker) => maker.set('nextTurn', problemInfo.firstTurn)));
-  }, [problemInfo.firstTurn]);
+    setCorrectAnswerMakers((prev) => prev.map((editor) => editor.set('firstTurn', problemMakerInfo.firstTurn)));
+    setWrongAnswerMakers((prev) => prev.map((editor) => editor.set('firstTurn', problemMakerInfo.firstTurn)));
+  }, [problemMakerInfo.firstTurn]);
+
+  // 접근 권한 검사
+  useEffect(() => {
+    if (isUserError || (user && !user.authorities.includes('problemUpload'))) {
+      alert('접근 권한이 없는 페이지입니다.');
+      router.push('/');
+    }
+  }, [user, isUserError, router]);
 
   return (
     <Layout>
-      <main className='py-50 px-20 lg:px-150 xl:px-200'>
-        <div className=' w-full p-50 pb-100 rounded-20 bg-white'>
-          <h1 className=' text-24 font-bold text-primary mb-100'>문제 생성하기</h1>
-          <div className='mb-30 flex items-center gap-5'>
-            <h3 className='text-20 font-bold text-primary'>문제 정보</h3>
-            <span className=' text-danger text-18 font-normal'>*</span>
-          </div>
-          <ProblemInfoMenus {...{ problemInfo, setProblemInfo, toggleFirstTurn }} className='mb-50' />
-          <h4 className=' text-16 font-bold text-primary mb-10'>힌트</h4>
-          <input
-            type='text'
-            placeholder='100자 제한'
-            ref={hintRef}
-            className=' w-full p-5 border-b-1 border-gray text-14 mb-100 placeholder:text-14'
-            spellCheck={false}
-          />
-          <div className='mb-30 flex items-center gap-5'>
-            <h3 className='text-20 font-bold text-primary'>문제도</h3>
-            <span className=' text-danger text-18 font-normal'>*</span>
-          </div>
+      {user && (
+        <main className='py-50 px-20 lg:px-150 xl:px-200'>
+          <div className=' w-full p-50 pb-100 rounded-20 bg-white'>
+            <h1 className=' text-24 font-bold text-primary mb-100'>문제 생성하기</h1>
+            <div className='mb-30 flex items-center gap-5'>
+              <h3 className='text-20 font-bold text-primary'>문제 정보</h3>
+              <span className=' text-danger text-18 font-normal'>*</span>
+            </div>
+            <ProblemMakerInfoMenus {...{ problemMakerInfo, setProblemMakerInfo, toggleFirstTurn }} className='mb-50' />
+            <h4 className=' text-16 font-bold text-primary mb-10'>힌트</h4>
+            <input
+              type='text'
+              placeholder='100자 제한'
+              ref={hintRef}
+              className=' w-full p-5 border-b-1 border-gray text-14 mb-100 placeholder:text-14'
+              spellCheck={false}
+            />
+            <div className='mb-30 flex items-center gap-5'>
+              <h3 className='text-20 font-bold text-primary'>문제도</h3>
+              <span className=' text-danger text-18 font-normal'>*</span>
+            </div>
 
-          <ProblemEditor
-            editor={shapeMaker}
-            editorSize={600}
-            hasBwSwitch
-            setEditor={handleChangeShapeMaker}
-            className=' mb-50'
-          />
-          <Underline className=' mb-50' />
-          <div className='mb-30 flex items-center gap-5'>
-            <h3 className='text-20 font-bold text-primary'>정답도</h3>
-            <span className=' text-danger text-18 font-normal'>*</span>
-          </div>
-
-          {correctAnswerMakers.map((maker, i) => (
             <ProblemEditor
-              key={i}
-              editor={maker}
+              editor={shapeMaker}
               editorSize={600}
-              hasBwSwitch={false}
-              title={`0${i + 1}`}
-              showDeleteBtn
-              showSequences
-              setEditor={(newEditor: Editor) => {
-                setCorrectAnswerMakers((prev) => prev.set(i, newEditor));
-              }}
-              deleteEditor={() => setCorrectAnswerMakers((prev) => prev.remove(i))}
+              hasBwSwitch
+              setEditor={handleChangeShapeMaker}
               className=' mb-50'
             />
-          ))}
-          <button
-            className=' mb-50 py-8 px-35 bg-bg_1 text-16 font-bold text-primary border-1 border-solid border-primary rounded-12'
-            onClick={() => setCorrectAnswerMakers((prev) => prev.push(makeAnswerMakerSameWithShape(shapeMaker)))}
-          >
-            정답도 추가하기
-          </button>
-          <Underline className=' mb-50' />
-          <h3 className='text-20 font-bold text-primary mb-10'>실패도</h3>
-          <h6 className=' text-gray font-normal text-12 mb-30'>실패도는 필수 항목이 아닙니다.</h6>
-          {wrongAnswerMakers.map((maker, i) => (
-            <ProblemEditor
-              key={i}
-              editor={maker}
-              editorSize={600}
-              hasBwSwitch={false}
-              title={`0${i + 1}`}
-              showDeleteBtn
-              showSequences
-              setEditor={(newEditor: Editor) => {
-                setWrongAnswerMakers((prev) => prev.set(i, newEditor));
-              }}
-              deleteEditor={() => setWrongAnswerMakers((prev) => prev.remove(i))}
-              className=' mb-50'
-            />
-          ))}
-          <button
-            className=' mb-50 py-8 px-35 bg-bg_1 text-16 font-bold text-primary border-1 border-solid border-primary rounded-12'
-            onClick={() => setWrongAnswerMakers((prev) => prev.push(makeAnswerMakerSameWithShape(shapeMaker)))}
-          >
-            실패도 추가하기
-          </button>
-          <Underline className=' mb-100' />
-          <div className='w-full flex justify-center'>
+            <Underline className=' mb-50' />
+            <div className='mb-30 flex items-center gap-5'>
+              <h3 className='text-20 font-bold text-primary'>정답도</h3>
+              <span className=' text-danger text-18 font-normal'>*</span>
+            </div>
+
+            {correctAnswerMakers.map((maker, i) => (
+              <ProblemEditor
+                key={i}
+                editor={maker}
+                editorSize={600}
+                hasBwSwitch={false}
+                title={`0${i + 1}`}
+                showDeleteBtn
+                showSequences
+                setEditor={(newEditor: Editor) => {
+                  setCorrectAnswerMakers((prev) => prev.set(i, newEditor));
+                }}
+                deleteEditor={() => setCorrectAnswerMakers((prev) => prev.remove(i))}
+                className=' mb-50'
+              />
+            ))}
             <button
-              onClick={handleUploadProblem}
-              className='py-8 px-50 bg-primary text-white font-bold text-16 rounded-full'
+              className=' mb-50 py-8 px-35 bg-bg_1 text-16 font-bold text-primary border-1 border-solid border-primary rounded-12'
+              onClick={() => setCorrectAnswerMakers((prev) => prev.push(makeAnswerMakerSameWithShape(shapeMaker)))}
             >
-              {uploadIsLoading ? '업로드 중...' : '문제 업로드'}
+              정답도 추가하기
             </button>
+            <Underline className=' mb-50' />
+            <h3 className='text-20 font-bold text-primary mb-10'>실패도</h3>
+            <h6 className=' text-gray font-normal text-12 mb-30'>실패도는 필수 항목이 아닙니다.</h6>
+            {wrongAnswerMakers.map((maker, i) => (
+              <ProblemEditor
+                key={i}
+                editor={maker}
+                editorSize={600}
+                hasBwSwitch={false}
+                title={`0${i + 1}`}
+                showDeleteBtn
+                showSequences
+                setEditor={(newEditor: Editor) => {
+                  setWrongAnswerMakers((prev) => prev.set(i, newEditor));
+                }}
+                deleteEditor={() => setWrongAnswerMakers((prev) => prev.remove(i))}
+                className=' mb-50'
+              />
+            ))}
+            <button
+              className=' mb-50 py-8 px-35 bg-bg_1 text-16 font-bold text-primary border-1 border-solid border-primary rounded-12'
+              onClick={() => setWrongAnswerMakers((prev) => prev.push(makeAnswerMakerSameWithShape(shapeMaker)))}
+            >
+              실패도 추가하기
+            </button>
+            <Underline className=' mb-100' />
+            <div className='w-full flex justify-center'>
+              <button
+                onClick={handleUploadProblem}
+                className='py-8 px-50 bg-primary text-white font-bold text-16 rounded-full'
+              >
+                {uploadIsLoading ? '업로드 중...' : '문제 업로드'}
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      )}
     </Layout>
   );
 };

@@ -1,30 +1,41 @@
-import React, { HTMLAttributes, useEffect, useState } from 'react';
+import { cls } from '@/libs/client/cls';
+import React, { HTMLAttributes, useEffect } from 'react';
 
-interface Props extends HTMLAttributes<HTMLDivElement> {
-  contents: React.ReactNode;
-  children: React.ReactNode;
+export type DropDownMenuOption = {
+  content: string | React.ReactNode;
+  selectHandler: () => void;
+};
+
+interface Props extends HTMLAttributes<HTMLUListElement> {
+  options: DropDownMenuOption[];
+  closeDropDown: () => void;
 }
 
-const DropDownMenu: React.FC<Props> = ({ contents, children, ...props }) => {
-  const [showDropDown, setShowDropDown] = useState(false);
+export default function DropDownMenu({ options, closeDropDown, ...props }: Props) {
   useEffect(() => {
-    const closeDropDown = () => setShowDropDown(false);
     document.body.addEventListener('click', closeDropDown);
     return () => {
       document.body.removeEventListener('click', closeDropDown);
     };
-  }, []);
-
-  const handleOnClickMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    e.stopPropagation(); // body의 eventListener 적용 안되게
-    setShowDropDown((prev) => !prev);
-  };
+  });
   return (
-    <div>
-      <div onClick={handleOnClickMenu}>{contents}</div>
-      <div className='relative'>{showDropDown && children}</div>
-    </div>
+    <ul className={cls('absolute shadow-neumorphism box-border bg-white rounded-4', props.className ?? '')}>
+      {options.map((option, i) => (
+        <li key={i}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              option.selectHandler();
+            }}
+            className={cls(
+              'w-full flex justify-start py-12 px-16 text-14 text-gray_70 font-normal border-t-1 cursor-pointer hover:bg-[#EFEFEF]',
+              i !== 0 ? ' border-t-gray_60' : ' border-t-white',
+            )}
+          >
+            {option.content}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
-};
-
-export default DropDownMenu;
+}

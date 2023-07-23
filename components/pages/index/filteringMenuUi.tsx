@@ -1,24 +1,24 @@
 import { cls } from '@/libs/client/cls';
 import Image from 'next/image';
 import React, { HTMLAttributes } from 'react';
+import ChevronDown from '../../../public/icons/chevron-down.svg';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   title: string;
 }
 
-const ProblemInfoDropdownMenu: React.FC<Props> = ({ title, ...props }) => {
+const FilteringMenuUi: React.FC<Props> = ({ title, ...props }) => {
   return (
     <div
       className={cls(
-        'h-50 flex justify-between items-center px-24 bg-white cursor-pointer select-none',
+        'h-50 flex justify-between items-center px-14 bg-white rounded-8 cursor-pointer select-none shadow-card',
         props.className ?? '',
       )}
     >
-      <div />
       <span className='font-bold text-primary text-16'>{title}</span>
-      <Image src={'/icons/chevron-down.svg'} alt='메뉴 선택 버튼' width={12} height={6} />
+      <ChevronDown width='10' height='6' />
     </div>
   );
 };
 
-export default ProblemInfoDropdownMenu;
+export default FilteringMenuUi;

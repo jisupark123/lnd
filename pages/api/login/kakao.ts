@@ -9,16 +9,16 @@ import cookie from '@/libs/server/cookie';
 import { JwtPayloadType } from '@/types/jwtPayloadType';
 
 // DB에 존재하는 유저 가져오기
-async function getExistUserFromDB(email: string) {
-  return await client.user.findUnique({ where: { email }, include: { authorities: true } });
+async function getExistUserFromDB(kakaoId: string) {
+  return await client.user.findUnique({ where: { kakaoId }, include: { authorities: true } });
 }
 
 // 새로운 User 생성
-async function createNewAccount(email: string) {
+async function createNewAccount(kakaoId: string) {
   const newUser = await client.user.create({
     data: {
-      nickname: email,
-      email,
+      nickname: `#${kakaoId}`,
+      kakaoId,
       loginFrom: 'kakao',
     },
     include: { authorities: true },
@@ -56,15 +56,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
   const kakaoAccessToken = await getAccessTokenFromKakao(auth_code as string);
 
   // 카카오 서버에서 회원 정보 가져오기
-  const {
-    kakao_account: { email },
-  } = await getUserInfoFromKakao(kakaoAccessToken);
+  const { id: kakaoId } = await getUserInfoFromKakao(kakaoAccessToken);
 
   // DB에서 회원 정보 가져오기
-  let user = await getExistUserFromDB(email);
+  let user = await getExistUserFromDB(String(kakaoId));
   // 존재하지 않는 회원이면 새로 생성
   if (!user) {
-    user = await createNewAccount(email);
+    user = await createNewAccount(String(kakaoId));
   }
 
   // Access Token, Refresh Token 생성

@@ -13,8 +13,8 @@ interface Props {
 }
 
 const EditorTools: React.FC<Props> = ({ editor, hasBwSwitch, setEditor }) => {
-  const changeNextTurn = () => {
-    setEditor(editorToolkit.changeNextTurn(editor));
+  const toggleChangeTurnStoneColor = () => {
+    setEditor(editorToolkit.toggleChangeTurnStoneColor(editor));
   };
 
   const moveTo = (to: 'first' | 'last' | '-1' | '+1') => {
@@ -30,7 +30,7 @@ const EditorTools: React.FC<Props> = ({ editor, hasBwSwitch, setEditor }) => {
   };
   return (
     <div className='flex items-center gap-20 w-full mb-10 p-24 bg-bg_1 rounded-12'>
-      {hasBwSwitch && <BwSwitch mode={editor.nextTurn} toggleFn={changeNextTurn} />}
+      {hasBwSwitch && <BwSwitch mode={editor.changeTurnSetting.stoneColor} toggleFn={toggleChangeTurnStoneColor} />}
       <button
         className=' border-1 border-solid border-primary py-4 px-12 bg-white rounded-12'
         onClick={() => moveTo('first')}

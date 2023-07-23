@@ -1,6 +1,6 @@
-import { Basis, basisToolkit } from '@/lib/basis';
-import { Move } from '@/lib/baduk';
-import { Problem, problemToolkit } from '@/lib/problem';
+import { Basis, basisToolkit } from '@/libs/domain/baduk/basis';
+import { Move } from '@/libs/domain/baduk/baduk';
+import { Problem, problemToolkit } from '@/libs/domain/baduk/problem';
 import { useState } from 'react';
 
 const useProblem = (problem: Problem, onSuccess: () => void, onFailure: () => void) => {
@@ -9,7 +9,7 @@ const useProblem = (problem: Problem, onSuccess: () => void, onFailure: () => vo
       dimensions: problem.dimensions,
       basicBoard: problem.shape,
       nextTurn: problem.firstTurn,
-    })
+    }),
   );
   const { board, sequences, currMove, nextTurn } = basisToolkit.currentScene(basis);
 

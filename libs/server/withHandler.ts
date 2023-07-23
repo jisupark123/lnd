@@ -13,7 +13,7 @@ type MethodType = 'GET' | 'POST' | 'PUT' | 'DELETE';
 interface ConfigType {
   methods: MethodType[];
   privateMethods?: MethodType[];
-  handler: (req: NextApiRequest, res: NextApiResponse) => void;
+  handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 }
 
 /**
@@ -36,9 +36,10 @@ function withHandler({ methods, privateMethods, handler }: ConfigType) {
     // 2-2. RefreshToken 만료 -> 401 반환
 
     if (privateMethods?.includes(req.method as MethodType)) {
-      const { verified, userId } = await verifyUser(req, res);
+      const { verified, userId, authorities } = await verifyUser(req, res);
       if (verified) {
         req.headers.userId = String(userId!);
+        req.headers.authorities = authorities;
       } else {
         return res.status(401).json({
           isSuccess: false,

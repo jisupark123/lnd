@@ -109,6 +109,8 @@ export const problemToolkit = {
     return { status: 'progress', nextMove };
   },
 
+  // Board의 모든 Move들을 Format의 Move 객체들로 변환
+  // 순서는 보장 X
   boardToFormatMoves(board: Board): format.Move[] {
     return board.moves
       .keySeq()
@@ -118,6 +120,15 @@ export const problemToolkit = {
         y: coordinate.y,
         stoneColor: board.moves.get(coordinate) as StoneColor,
       }));
+  },
+  scenesToFormatMoves(scenes: List<Scene>): format.Move[] {
+    return scenes
+      .map((scene) => ({
+        x: scene.newMove!.coordinate.x,
+        y: scene.newMove!.coordinate.y,
+        stoneColor: scene.newMove!.color as StoneColor,
+      }))
+      .toArray();
   },
 
   // database의 format을 Problem 클래스로 변환

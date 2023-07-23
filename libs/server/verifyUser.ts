@@ -5,6 +5,7 @@ import client from './prismaClient';
 import makeJwtToken from './makeJwtToken';
 import { JWT_ACCESS_TOKEN_EXPIRES_IN } from '../domain/jwt';
 import cookie from './cookie';
+import { AuthorityName } from '@prisma/client';
 
 // cookie에 저장된 accessToken으로 유저를 인증하고 userId를 반환하는 함수
 // accessToken이 만료되어서 새로운 토큰을 생성할 경우 쿠키에 저장한다.
@@ -14,6 +15,7 @@ export default async function verifyUser(
 ): Promise<{
   verified: boolean;
   userId: number | null;
+  authorities: AuthorityName[];
 }> {
   const { accessToken, refreshToken } = req.cookies;
 
@@ -21,8 +23,8 @@ export default async function verifyUser(
 
   // AccessToken 유효
   if (decodedAccessToken) {
-    const { userId } = decodedAccessToken;
-    return { verified: true, userId };
+    const { userId, authorities } = decodedAccessToken;
+    return { verified: true, userId, authorities };
 
     // AccessToken 만료
   } else {
@@ -38,10 +40,10 @@ export default async function verifyUser(
       const { userId, authorities } = decodedRefreshToken;
       const newAccessToken = makeJwtToken({ userId, authorities }, JWT_ACCESS_TOKEN_EXPIRES_IN);
       cookie.setAccessToken(req, res, newAccessToken);
-      return { verified: true, userId };
+      return { verified: true, userId, authorities };
       // RefreshToken 만료
     } else {
-      return { verified: false, userId: null };
+      return { verified: false, userId: null, authorities: [] };
     }
   }
 }

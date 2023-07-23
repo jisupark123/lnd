@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import AppResponseType from '@/types/appResponseType';
 import withHandler from '@/libs/server/withHandler';
 import { Level, levelToLevelScore } from '@/libs/domain/level';
-import { ProblemFormat, ProblemResult, ProblemType } from '@/types/problem';
+import { ProblemFormat, ProblemOrderType, ProblemResult, ProblemType } from '@/types/problem';
 import client from '@/libs/server/prismaClient';
 import { ProblemResponseType } from '@/query/problems/useProblemsQuery';
 import verifyUser from '@/libs/server/verifyUser';
@@ -16,12 +16,12 @@ export type PostProblemReqBody = {
   format: ProblemFormat;
 };
 
-type ProblemFilterParams = {
+export type ProblemFilterParams = {
   page?: string;
   levels?: Level | Level[];
-  type?: ProblemType;
+  types?: ProblemType[];
   status: 'unsolved' | undefined;
-  order?: 'recent' | 'acceptance_desc' | 'acceptance_asc'; // 최신순 | 정답률 높은 문제 | 정답률 낮은 문제
+  order?: ProblemOrderType; // 최신순 | 정답률 높은 문제 | 정답률 낮은 문제
 };
 
 const PROBLEM_SLICE = 50; // 한 페이지에 ?개 문제
@@ -30,15 +30,21 @@ const PAGE_SLICE = 5; // 페이지 버튼 ?개
 async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType>) {
   if (req.method === 'GET') {
     const { verified, userId } = await verifyUser(req, res);
-    const { page, levels, type, status, order } = req.query as ProblemFilterParams;
+    const { page, levels, types, status, order } = req.query as ProblemFilterParams;
+    console.log(verified);
     const currentPage = page ? Number(page) : 1;
     const initLevels = typeof levels === 'string' ? [levels] : levels;
+    const initTypes = typeof types === 'string' ? [types] : types;
     const problems = await client.problem.findMany({
-      select: { id: true, level: true, createdUser: true, createdAt: true, attempts: true },
+      select: { id: true, level: true, levelScore: true, createdUser: true, createdAt: true, attempts: true },
       // include: { attempts: true },
       where: {
         // type에 맞는 문제만 필터링
-        type,
+        ...(initTypes
+          ? {
+              OR: initTypes.map((type) => ({ type })),
+            }
+          : {}),
 
         // level에 맞는 문제만 필터링
         ...(initLevels
@@ -50,28 +56,28 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
         // 유저가 풀지 않은 문제를 필터링
         // solved가 true에 해당하는 문제는 모두 제외하고
         // solved가 false인 문제만 선택
-        ...(status === 'unsolved' && verified
-          ? {
-              NOT: {
-                attempts: {
-                  some: {
-                    AND: [
-                      { userId: Number(userId), solved: true },
-                      { problem: { createdUser: { id: Number(userId) } } },
-                    ],
-                  },
-                },
-              },
-              attempts: {
-                some: {
-                  AND: [
-                    { userId: Number(userId), solved: false },
-                    { problem: { createdUser: { id: Number(userId) } } },
-                  ],
-                },
-              },
-            }
-          : {}),
+        // ...(status === 'unsolved' && verified
+        //   ? {
+        //       NOT: {
+        //         attempts: {
+        //           some: {
+        //             AND: [
+        //               { userId: Number(userId), solved: true },
+        //               { problem: { createdUser: { id: Number(userId) } } },
+        //             ],
+        //           },
+        //         },
+        //       },
+        //       attempts: {
+        //         some: {
+        //           AND: [
+        //             { userId: Number(userId), solved: false },
+        //             { problem: { createdUser: { id: Number(userId) } } },
+        //           ],
+        //         },
+        //       },
+        //     }
+        //   : {}),
       },
       orderBy: { createdAt: 'desc' },
       // take: PROBLEM_SLICE,
@@ -90,33 +96,42 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
       lastPage,
     };
 
-    const response = problems.map((problem) => {
-      const { id, level, createdAt, createdUser, attempts } = problem;
+    const processedProblems = problems.map((problem) => {
+      const { id, level, levelScore, createdAt, createdUser, attempts } = problem;
       const answerCount = attempts.filter((attempt) => attempt.solved === true).length; // 풀이자 수
-      const answerRate = answerCount === 0 ? 0 : Number((answerCount / attempts.length).toFixed(2)); // 정답률
+      const answerRate = answerCount === 0 ? 0 : Number(((answerCount / attempts.length) * 100).toFixed(1)); // 정답률
+      const userSolved = !!attempts.find((attempt) => attempt.solved && attempt.userId === userId);
       return {
         id,
         level,
+        levelScore,
         createdAt,
-        createdUserId: createdUser.id,
-        createdUserProfile: createdUser.profileImage,
+        createdUserId: createdUser ? createdUser.id : null,
+        createdUserProfile: createdUser ? createdUser.profileImage : null,
         answerCount,
         answerRate,
+        userSolved,
       };
     });
 
+    const filteredResponse =
+      verified && status === 'unsolved'
+        ? processedProblems.filter((problem) => !problem.userSolved)
+        : processedProblems;
+
     const sortedResponse =
       order === 'acceptance_desc' // 정답률 높은 순
-        ? response.sort((a, b) => b.answerRate - a.answerRate)
+        ? filteredResponse.sort((a, b) => b.answerRate - a.answerRate)
         : order === 'acceptance_asc' // 정답률 낮은 순
-        ? response.sort((a, b) => a.answerRate - b.answerRate)
-        : response; // 최신순 (DB에서 정렬)
+        ? filteredResponse.sort((a, b) => a.answerRate - b.answerRate)
+        : filteredResponse; // 최신순 (DB에서 정렬)
 
     const slicedResponse = sortedResponse.slice(PROBLEM_SLICE * currentPage - PROBLEM_SLICE, PROBLEM_SLICE);
+    const lastResponse = slicedResponse.map((res) => ({ ...res, answerRate: `${res.answerRate}%` }));
 
     return res
       .status(200)
-      .json({ isSuccess: true, message: '성공적으로 불러왔습니다.', result: { problems: slicedResponse, pagination } });
+      .json({ isSuccess: true, message: '성공적으로 불러왔습니다.', result: { problems: lastResponse, pagination } });
   }
   if (req.method === 'POST') {
     const { userId } = req.headers;

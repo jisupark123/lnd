@@ -32,7 +32,7 @@ datasource db {
 model User {
   id              Int           @id @default(autoincrement())
   createdAt       DateTime      @default(now())
-  email           String        @unique @db.VarChar(50)
+  kakaoId         String        @unique
   nickname        String        @unique @db.VarChar(50)
   profileImage    String?
   loginFrom       LoginFrom

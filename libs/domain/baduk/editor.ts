@@ -18,7 +18,10 @@ import {
   oppositeStoneColor,
 } from './baduk';
 
-type ChangeTurnMode = 'auto' | 'manual';
+type ChangeTurnSetting = {
+  mode: 'auto' | 'manual';
+  stoneColor: StoneColor;
+};
 
 // head가 가리키는 scene이 유저에게 보여줄 장면이다.
 export class Editor extends Record(
@@ -26,8 +29,8 @@ export class Editor extends Record(
     dimensions: 19,
     scenes: List<Scene>(),
     head: 0,
-    nextTurn: 'BLACK' as StoneColor,
-    changeTurnMode: 'auto' as ChangeTurnMode,
+    firstTurn: 'BLACK' as StoneColor,
+    changeTurnSetting: { mode: 'auto', stoneColor: 'BLACK' } as ChangeTurnSetting,
   },
   'Editor',
 ) {
@@ -35,38 +38,33 @@ export class Editor extends Record(
     dimensions,
     basicBoard,
     moves,
-    nextTurn,
-    changeTurnMode,
+    firstTurn,
+    changeTurnSetting,
   }: {
     dimensions: number;
     basicBoard?: Board;
     moves?: Move[];
-    nextTurn?: StoneColor; // 처음에 누가 먼저 두는지
-    changeTurnMode?: ChangeTurnMode; // turn
+    firstTurn?: StoneColor;
+    changeTurnSetting?: ChangeTurnSetting; // turn
   }) {
     const _basicBoard = basicBoard ?? new Board(dimensions);
     const scenes = moves ? makeScenesByMoves(_basicBoard, ...moves) : List<Scene>([new Scene(_basicBoard)]);
-    const lastScene = scenes.last()!;
 
     // 1. nextTurn 값을 받았다면 -> nextTurn
     // 2. 값을 안받았다면,
     // 2-1. 마지막 Scene에 newMove가 없다면(moves 입력 X) -> basicBoard에 돌이 있다면(접바둑으로 간주) White, 아니면 Black
     // 2-2. 마지막 Scene에 newMove가 있다면(moves 입력 O) -> oppositeColor
-    const _nextTurn =
-      nextTurn !== undefined
-        ? nextTurn
-        : lastScene.newMove === null
-        ? lastScene.board.moves.size
-          ? WHITE
-          : BLACK
-        : oppositeColor(lastScene.newMove.color);
+    const initChangeTurnSetting: ChangeTurnSetting = changeTurnSetting ?? {
+      mode: 'auto',
+      stoneColor: BLACK as StoneColor,
+    };
 
     super({
       dimensions,
       scenes,
       head: scenes.size - 1,
-      nextTurn: _nextTurn as StoneColor,
-      changeTurnMode: changeTurnMode ?? 'auto',
+      firstTurn: firstTurn ?? (BLACK as StoneColor),
+      changeTurnSetting: initChangeTurnSetting,
     });
   }
 }
@@ -82,22 +80,23 @@ export const editorToolkit = {
       다르다면 head 이후의 Scene들을 삭제하고 newBoard를 추가한 Editor을 리턴한다.
   */
   addMove(editor: Editor, move: Move): Editor {
-    const newBoard = addMoveToBoard(editor.scenes.get(editor.head)!.board, move);
-    const boardBeforeTwoTurn = editor.scenes.get(editor.head - 1)?.board;
-    if (boardBeforeTwoTurn && boardBeforeTwoTurn.equals(newBoard)) {
+    const currScene = editor.scenes.get(editor.head)!;
+    const beforeScene = editor.scenes.get(editor.head - 1);
+    const newBoard = addMoveToBoard(currScene.board, move);
+    const before2TurnFromNewBoard = beforeScene?.board;
+    if (before2TurnFromNewBoard && before2TurnFromNewBoard.equals(newBoard)) {
       throw new Error(`팻감을 쓰지 않고 패를 따낼 수 없습니다. x:${move.coordinate.x} y:${move.coordinate.y}`);
     }
 
-    const boardAfterOneTurn = editor.scenes.get(editor.head + 1)?.board;
+    const after1TurnFromCurrScene = editor.scenes.get(editor.head + 1)?.board;
 
-    if (boardAfterOneTurn && boardAfterOneTurn.equals(newBoard)) {
+    if (after1TurnFromCurrScene && after1TurnFromCurrScene.equals(newBoard)) {
       return editor.set('head', editor.head + 1);
     }
 
     return editor
       .set('scenes', editor.scenes.slice(0, editor.head + 1).push(new Scene(newBoard, move)))
-      .set('head', editor.head + 1)
-      .set('nextTurn', editor.changeTurnMode === 'auto' ? oppositeStoneColor(editor.nextTurn) : editor.nextTurn);
+      .set('head', editor.head + 1);
   },
 
   // addMove에 실패하면 에러 대신 원래 참조를 반환하는 함수
@@ -111,21 +110,36 @@ export const editorToolkit = {
 
   // 유저에게 보여줄 장면 & 정보를 가져오는 함수
   currentScene(editor: Editor) {
-    const scene = editor.scenes.get(editor.head)!;
+    const currScene = editor.scenes.get(editor.head)!;
+    const currMove = currScene.newMove;
     const sequences = editorToolkit.getSequences(editor);
-    const currMove = scene.newMove;
-
     const totalMoveCount = sequences.size;
-    const deadStonesCount = getDeadStonesCount(scene.board, totalMoveCount);
-    return { board: scene.board, sequences, currMove, nextTurn: editor.nextTurn, deadStonesCount };
+    const deadStonesCount = getDeadStonesCount(currScene.board, totalMoveCount);
+
+    // 1. mode가 manual이면 -> changeTurnSetting.stoneColor
+    // 2. mode가 auto && currMove가 있다면 -> 반대 색깔
+    // 3. mode가 auto && currMove가 없다면(처음 장면) -> firstTurn
+    const nextTurn =
+      editor.changeTurnSetting.mode === 'manual'
+        ? editor.changeTurnSetting.stoneColor
+        : currMove
+        ? oppositeStoneColor(currMove.color as StoneColor)
+        : editor.firstTurn;
+    return { board: currScene.board, sequences, currMove, nextTurn, deadStonesCount };
   },
 
-  changeNextTurn(editor: Editor): Editor {
-    return editor.set('nextTurn', oppositeStoneColor(editor.nextTurn));
+  toggleChangeTurnStoneColor(editor: Editor): Editor {
+    return editor.set('changeTurnSetting', {
+      ...editor.changeTurnSetting,
+      stoneColor: oppositeStoneColor(editor.changeTurnSetting.stoneColor),
+    });
   },
 
-  changeTurnMode(editor: Editor): Editor {
-    return editor.set('changeTurnMode', editor.changeTurnMode === 'auto' ? 'manual' : 'auto');
+  toggleChangeTurnMode(editor: Editor): Editor {
+    return editor.set('changeTurnSetting', {
+      ...editor.changeTurnSetting,
+      mode: editor.changeTurnSetting.mode === 'auto' ? 'manual' : 'auto',
+    });
   },
 
   // 모든 수순을 리스트로 반환한다. (수순보기 기능)

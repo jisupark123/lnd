@@ -1,95 +1,103 @@
-import DropDownMenu from '@/components/menu/dropDownMenu';
+import DropDownMenu from '@/components/menu/checkBoxDropDownSelect';
 import React, { HTMLAttributes } from 'react';
-import ProblemInfoDropdownMenu from './problemInfoDropdownMenu';
-import CheckBoxDropDown, { CheckBoxDropDownMenu } from '@/components/menu/check-box_drop-down';
+import ProblemMakerInfoDropdownMenu from './problemMakerInfoDropdownMenu';
+import CheckBoxDropDownSelect, { CheckBoxDropDownOptions } from '@/components/menu/checkBoxDropDownSelect';
 import capitalize from '@/libs/utils/capitalize';
-import { ProblemInfo } from '@/pages/problem/new';
+import { ProblemMakerInfo } from '@/pages/problem/new';
 import { cls } from '@/libs/client/cls';
 import { StoneColor } from '@/libs/domain/baduk/baduk';
+import { Level } from '@/libs/domain/level';
+import { ProblemResult, ProblemType } from '@/types/problem';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  problemInfo: ProblemInfo;
-  setProblemInfo: React.Dispatch<React.SetStateAction<ProblemInfo>>;
+  problemMakerInfo: ProblemMakerInfo;
+  setProblemMakerInfo: React.Dispatch<React.SetStateAction<ProblemMakerInfo>>;
   toggleFirstTurn: (newFirstTurn: StoneColor) => void;
 }
 
-export default function ProblemInfoMenus({ problemInfo, setProblemInfo, toggleFirstTurn, ...props }: Props) {
-  const problemTypeMenus: CheckBoxDropDownMenu[] = [
+export default function ProblemMakerInfoMenus({
+  problemMakerInfo,
+  setProblemMakerInfo,
+  toggleFirstTurn,
+  ...props
+}: Props) {
+  const problemLevelOptions: CheckBoxDropDownOptions[] = [
     {
-      selected: problemInfo.type === '사활',
-      content: <div className='font-medium text-black text-16'>사활</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, type: '사활' })),
-    },
-    {
-      selected: problemInfo.type === '맥',
-      content: <div className='font-medium text-black text-16'>맥</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, type: '맥' })),
-    },
-  ];
-  const problemLevelMenus: CheckBoxDropDownMenu[] = [
-    {
-      selected: problemInfo.level === 'bronze',
+      selected: problemMakerInfo.level === 'bronze',
       content: <div className='font-medium text-black text-16'>Bronze</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'bronze' })),
+      value: 'bronze',
     },
     {
-      selected: problemInfo.level === 'silver',
+      selected: problemMakerInfo.level === 'silver',
       content: <div className='font-medium text-black text-16'>Silver</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'silver' })),
+      value: 'silver',
     },
     {
-      selected: problemInfo.level === 'gold',
+      selected: problemMakerInfo.level === 'gold',
       content: <div className='font-medium text-black text-16'>Gold</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'gold' })),
+      value: 'gold',
     },
     {
-      selected: problemInfo.level === 'platinum',
+      selected: problemMakerInfo.level === 'platinum',
       content: <div className='font-medium text-black text-16'>Platinum</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'platinum' })),
+      value: 'platinum',
     },
     {
-      selected: problemInfo.level === 'diamond',
+      selected: problemMakerInfo.level === 'diamond',
       content: <div className='font-medium text-black text-16'>Diamond</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'diamond' })),
+      value: 'diamond',
     },
     {
-      selected: problemInfo.level === 'ruby',
+      selected: problemMakerInfo.level === 'ruby',
       content: <div className='font-medium text-black text-16'>Ruby</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'ruby' })),
+      value: 'ruby',
     },
     {
-      selected: problemInfo.level === 'master',
+      selected: problemMakerInfo.level === 'master',
       content: <div className='font-medium text-black text-16'>Master</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, level: 'master' })),
+      value: 'master',
     },
   ];
-  const problemFirstTurnMenus: CheckBoxDropDownMenu[] = [
+  const problemTypeOptions: CheckBoxDropDownOptions[] = [
     {
-      selected: problemInfo.firstTurn === 'BLACK',
+      selected: problemMakerInfo.type === '사활',
+      content: <div className='font-medium text-black text-16'>사활</div>,
+      value: '사활',
+    },
+    {
+      selected: problemMakerInfo.type === '맥',
+      content: <div className='font-medium text-black text-16'>맥</div>,
+      value: '맥',
+    },
+  ];
+
+  const problemFirstTurnOptions: CheckBoxDropDownOptions[] = [
+    {
+      selected: problemMakerInfo.firstTurn === 'BLACK',
       content: <div className='font-medium text-black text-16'>흑선</div>,
-      onSelect: () => toggleFirstTurn('BLACK'),
+      value: 'BLACK',
     },
     {
-      selected: problemInfo.firstTurn === 'WHITE',
+      selected: problemMakerInfo.firstTurn === 'WHITE',
       content: <div className='font-medium text-black text-16'>백선</div>,
-      onSelect: () => toggleFirstTurn('WHITE'),
+      value: 'WHITE',
     },
   ];
-  const problemResultMenus: CheckBoxDropDownMenu[] = [
+  const problemResultOptions: CheckBoxDropDownOptions[] = [
     {
-      selected: problemInfo.result === '살리는 문제',
+      selected: problemMakerInfo.result === '살리는 문제',
       content: <div className='font-medium text-black text-16'>살리는 문제</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, result: '살리는 문제' })),
+      value: '살리는 문제',
     },
     {
-      selected: problemInfo.result === '죽이는 문제',
+      selected: problemMakerInfo.result === '죽이는 문제',
       content: <div className='font-medium text-black text-16'>죽이는 문제</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, result: '죽이는 문제' })),
+      value: '죽이는 문제',
     },
     {
-      selected: problemInfo.result === '패',
+      selected: problemMakerInfo.result === '패',
       content: <div className='font-medium text-black text-16'>패</div>,
-      onSelect: () => setProblemInfo((prev) => ({ ...prev, result: '패' })),
+      value: '패',
     },
   ];
   return (
@@ -98,35 +106,52 @@ export default function ProblemInfoMenus({ problemInfo, setProblemInfo, toggleFi
         <div className='bg-primary text-white text-16 font-bold py-14 flex justify-center items-center border-b border-solid border-primary rounded-tl-6'>
           문제 유형
         </div>
-        <DropDownMenu contents={<ProblemInfoDropdownMenu title={problemInfo.type} className=' rounded-bl-8' />}>
-          <CheckBoxDropDown menus={problemTypeMenus} className='w-full top-10' />
-        </DropDownMenu>
+        <CheckBoxDropDownSelect
+          contents={<ProblemMakerInfoDropdownMenu title={problemMakerInfo.type} className=' rounded-bl-8' />}
+          options={problemTypeOptions}
+          selectHandler={(type: ProblemType) => setProblemMakerInfo((prev) => ({ ...prev, type }))}
+          closeOnSelect
+        />
       </div>
       <div className=' w-[25%] border-r border-solid border-primary'>
         <div className=' bg-bg_1 text-primary text-16 font-bold py-14 flex justify-center items-center border-b border-solid border-primary'>
           레벨
         </div>
-        <DropDownMenu contents={<ProblemInfoDropdownMenu title={capitalize(problemInfo.level)} />}>
-          <CheckBoxDropDown menus={problemLevelMenus} className='w-full top-10' />
-        </DropDownMenu>
+        <CheckBoxDropDownSelect
+          contents={
+            <ProblemMakerInfoDropdownMenu title={capitalize(problemMakerInfo.level)} className=' rounded-bl-8' />
+          }
+          options={problemLevelOptions}
+          selectHandler={(level: Level) => setProblemMakerInfo((prev) => ({ ...prev, level }))}
+          closeOnSelect
+        />
       </div>
       <div className=' w-[25%] border-r border-solid border-primary'>
         <div className=' bg-primary text-white text-16 font-bold py-14 flex justify-center items-center border-b border-solid border-primary'>
           차례
         </div>
-        <DropDownMenu
-          contents={<ProblemInfoDropdownMenu title={problemInfo.firstTurn === 'BLACK' ? '흑선' : '백선'} />}
-        >
-          <CheckBoxDropDown menus={problemFirstTurnMenus} className='w-full top-10' />
-        </DropDownMenu>
+        <CheckBoxDropDownSelect
+          contents={
+            <ProblemMakerInfoDropdownMenu
+              title={problemMakerInfo.firstTurn === 'BLACK' ? '흑선' : '백선'}
+              className=' rounded-bl-8'
+            />
+          }
+          options={problemFirstTurnOptions}
+          selectHandler={(stoneColor: StoneColor) => toggleFirstTurn(stoneColor)}
+          closeOnSelect
+        />
       </div>
       <div className=' w-[25%]'>
         <div className='bg-bg_1 text-primary text-16 font-bold py-14 flex justify-center items-center border-b border-solid border-primary rounded-tr-8'>
           결과
         </div>
-        <DropDownMenu contents={<ProblemInfoDropdownMenu title={problemInfo.result} className=' rounded-br-8' />}>
-          <CheckBoxDropDown menus={problemResultMenus} className='w-full top-10' />
-        </DropDownMenu>
+        <CheckBoxDropDownSelect
+          contents={<ProblemMakerInfoDropdownMenu title={problemMakerInfo.result} className=' rounded-bl-8' />}
+          options={problemResultOptions}
+          selectHandler={(result: ProblemResult) => setProblemMakerInfo((prev) => ({ ...prev, result }))}
+          closeOnSelect
+        />
       </div>
     </div>
   );
