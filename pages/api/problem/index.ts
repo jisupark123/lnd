@@ -31,7 +31,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse<AppResponseType
   if (req.method === 'GET') {
     const { verified, userId } = await verifyUser(req, res);
     const { page, levels, types, status, order } = req.query as ProblemFilterParams;
-    console.log(verified);
     const currentPage = page ? Number(page) : 1;
     const initLevels = typeof levels === 'string' ? [levels] : levels;
     const initTypes = typeof types === 'string' ? [types] : types;

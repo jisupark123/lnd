@@ -1,4 +1,4 @@
-import { KAKAO_REDIRECT_URI_LOCAL } from '@/constants/redirectUri';
+import { KAKAO_REDIRECT_URI_DEVELOPMENT, KAKAO_REDIRECT_URI_DEPLOY } from '@/constants/redirectUri';
 import AppResponseType from '@/types/appResponseType';
 import axios from 'axios';
 
@@ -19,7 +19,7 @@ export async function getAccessTokenFromKakao(authCode: string) {
     params: {
       grant_type: 'authorization_code',
       client_id: process.env.KAKAO_RESTAPI_KEY,
-      redirect_uri: KAKAO_REDIRECT_URI_LOCAL,
+      redirect_uri: process.env.NODE_ENV === 'development' ? KAKAO_REDIRECT_URI_DEVELOPMENT : KAKAO_REDIRECT_URI_DEPLOY,
       code: authCode,
     },
   });

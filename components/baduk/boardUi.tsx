@@ -241,7 +241,6 @@ const BoardUi: React.FC<Props> = ({
 
   function onMouseUp(e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
     const [x, y] = boardConfigs.getXyByCoordinate(e.nativeEvent.offsetX, e.nativeEvent.offsetY, size, board.dimensions);
-    console.log(x, y);
     addMove(new Move(new Coordinate(x, y), nextTurn));
   }
 
