@@ -4,10 +4,21 @@ import { ProblemInfo } from '@/types/problem';
 import Link from 'next/link';
 import React, { HTMLAttributes } from 'react';
 import LogoIcon from '../../../public/icons/logo.svg';
+// import { textColorVariants } from '@/libs/client/tailwindColorVariants';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   problems: ProblemInfo[];
 }
+
+const textColorVariants = {
+  bronze: 'text-bronze',
+  silver: 'text-silver',
+  gold: 'text-gold',
+  platinum: 'text-platinum',
+  diamond: 'text-diamond',
+  ruby: 'text-ruby',
+  master: 'text-master',
+};
 
 export default function Problems({ problems }: Props) {
   return (
@@ -33,7 +44,9 @@ export default function Problems({ problems }: Props) {
             </div>
             <div className='mb-14 flex items-center gap-5'>
               <span className='text-16 font-semibold text-black'>정답률</span>
-              <span className={cls('text-16 font-semibold', `text-${problem.level}`)}>{problem.answerRate}</span>
+              <span className={cls('text-16 font-semibold', textColorVariants[problem.level])}>
+                {problem.answerRate}
+              </span>
             </div>
             <div className='flex items-center gap-5'>
               <span className='text-16 font-semibold text-black'>풀이자 수</span>
