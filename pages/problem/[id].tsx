@@ -51,50 +51,50 @@ export default function ProblemSolve({}: Props) {
       ]
     : null;
 
-  const withHandleOnSolved = async (handler: () => Promise<void>) => {
-    if (!user) {
-      showAlert({
-        alertViewTitle: '로그인이 필요한 기능입니다!',
-        alertViewType: 'normal',
-        closeWithTouchBackdrop: false,
-        alertActions: [{ title: '로그인 페이지로 이동하기', style: 'primary', handler: () => router.push('/login') }],
-      });
-      return;
-    }
-    await handler();
-  };
+  // const withHandleOnSolved = async (handler: () => Promise<void>) => {
+  //   if (!user) {
+  //     showAlert({
+  //       alertViewTitle: '로그인이 필요한 기능입니다!',
+  //       alertViewType: 'normal',
+  //       closeWithTouchBackdrop: false,
+  //       alertActions: [{ title: '로그인 페이지로 이동하기', style: 'primary', handler: () => router.push('/login') }],
+  //     });
+  //     return;
+  //   }
+  //   await handler();
+  // };
 
   const handleOnSuccess = async () => {
-    setIsSovlingFinishedLoading(true);
-    const response = await fetchNewAttempt(Number(id), true);
-    setIsSovlingFinishedLoading(false);
-    if (response.status === 200) {
-      await queryClient.invalidateQueries([PROBLEM_SOLVE_QUERY_KEY, id]);
-      queryClient.fetchQuery([PROBLEM_SOLVE_QUERY_KEY, id]);
-      showAlert({
-        alertViewTitle: '정답입니다!',
-        alertViewType: 'primary',
-        closeWithTouchBackdrop: true,
-        alertActions: [{ title: '돌아가기', style: 'primary', handler: null }],
-      });
+    showAlert({
+      alertViewTitle: '정답입니다!',
+      alertViewType: 'primary',
+      closeWithTouchBackdrop: true,
+      alertActions: [{ title: '돌아가기', style: 'primary', handler: null }],
+    });
+    if (user) {
+      const response = await fetchNewAttempt(Number(id), true);
+      if (response.status === 200) {
+        await queryClient.invalidateQueries([PROBLEM_SOLVE_QUERY_KEY, id]);
+        queryClient.fetchQuery([PROBLEM_SOLVE_QUERY_KEY, id]);
+      }
     }
   };
   const handleOnFailed = async () => {
-    setIsSovlingFinishedLoading(true);
-    const response = await fetchNewAttempt(Number(id), false);
-    setIsSovlingFinishedLoading(false);
-    if (response.status === 200) {
-      await queryClient.invalidateQueries([PROBLEM_SOLVE_QUERY_KEY, id]);
-      queryClient.fetchQuery([PROBLEM_SOLVE_QUERY_KEY, id]);
-      showAlert({
-        alertViewTitle: '틀렸습니다.',
-        alertViewType: 'destructive',
-        closeWithTouchBackdrop: true,
-        alertActions: [
-          { title: '돌아가기', style: 'destructive', handler: null },
-          { title: '재도전', style: 'primary', handler: router.reload },
-        ],
-      });
+    showAlert({
+      alertViewTitle: '틀렸습니다.',
+      alertViewType: 'destructive',
+      closeWithTouchBackdrop: true,
+      alertActions: [
+        { title: '돌아가기', style: 'destructive', handler: null },
+        { title: '재도전', style: 'primary', handler: router.reload },
+      ],
+    });
+    if (user) {
+      const response = await fetchNewAttempt(Number(id), false);
+      if (response.status === 200) {
+        await queryClient.invalidateQueries([PROBLEM_SOLVE_QUERY_KEY, id]);
+        queryClient.fetchQuery([PROBLEM_SOLVE_QUERY_KEY, id]);
+      }
     }
   };
 
@@ -160,12 +160,7 @@ export default function ProblemSolve({}: Props) {
                 </span>
               </div>
             </div>
-            <Problem
-              format={problem.format}
-              onSuccess={() => withHandleOnSolved(handleOnSuccess)}
-              onFailed={() => withHandleOnSolved(handleOnFailed)}
-              className='mb-20'
-            />
+            <Problem format={problem.format} onSuccess={handleOnSuccess} onFailed={handleOnFailed} className='mb-20' />
             {/* <div className='flex justify-start'>
               <button>재도전</button>
             </div> */}
