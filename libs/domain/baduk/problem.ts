@@ -57,15 +57,12 @@ export const problemToolkit = {
 
   경우의 수
   1. 전달 받은 board가 정답도의 마지막 부분과 일치한다. -> success, 정답 알림 띄우기
-  2. 실패도의 마지막은 사용자일 수 없기 때문에 실패도의 마지막과 일치할 수는 없다.
-  3. 전달 받은 board가 정답도의 마지막 -1 부분과 일치한다. -> nextSuccess, 응수 후 정답 알림 띄우기
+  2. 전달 받은 board가 실패도의 마지막 부분과 일치한다. -> failure, 실패 알림 띄우기
+  3. 전달 받은 board가 정답도의 마지막 -1 부분과 일치한다. -> success, 응수 후 정답 알림 띄우기
   4. 전달 받은 board가 실패도의 마지막 -1 부분과 일치한다. -> failure, 응수 후 실패 알림 띄우기
   5. 정답도나 실패도의 중간 부분과 일치한다. -> progress, 응수하기
   */
-  getResponse(
-    problem: Problem,
-    basis: Basis,
-  ): { status: 'success' | 'nextSuccess' | 'failure' | 'progress'; nextMove: Move | null } {
+  getResponse(problem: Problem, basis: Basis): { status: 'success' | 'failure' | 'progress'; nextMove: Move | null } {
     const { board } = basis.scenes.last()!;
     const curr_order = basis.scenes.size - 2; // 몇번째 수인지
 
@@ -76,6 +73,12 @@ export const problemToolkit = {
       return { status: 'success', nextMove: null };
     }
 
+    const isFailed = problem.wrongAnswers.find((answer) => answer.last()?.board.equals(board) || false) !== undefined;
+
+    if (isFailed) {
+      return { status: 'failure', nextMove: null };
+    }
+
     // 전달 받은 board가 정답도의 마지막 -1 부분과 일치한다.
     const lastMoveInCorrect = problem.correctAnswers
       .find((answer) => answer.size - 2 === curr_order && answer.get(answer.size - 2)?.board.equals(board) === true)
@@ -83,7 +86,7 @@ export const problemToolkit = {
 
     if (lastMoveInCorrect) {
       return {
-        status: 'nextSuccess',
+        status: 'success',
         nextMove: lastMoveInCorrect,
       };
     }

@@ -65,9 +65,19 @@ export default function ProblemMakerInfoMenus({
       value: '사활',
     },
     {
+      selected: problemMakerInfo.type === '수상전',
+      content: <div className='font-medium text-black text-16'>수상전</div>,
+      value: '수상전',
+    },
+    {
       selected: problemMakerInfo.type === '맥',
       content: <div className='font-medium text-black text-16'>맥</div>,
       value: '맥',
+    },
+    {
+      selected: problemMakerInfo.type === '끝내기',
+      content: <div className='font-medium text-black text-16'>끝내기</div>,
+      value: '끝내기',
     },
   ];
 

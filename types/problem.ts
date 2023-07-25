@@ -1,7 +1,7 @@
 import { StoneColor } from '@/libs/domain/baduk/baduk';
 import { Level } from '@/libs/domain/level';
 
-export type ProblemType = '사활' | '맥';
+export type ProblemType = '사활' | '맥' | '수상전' | '끝내기';
 export type ProblemResult = '살리는 문제' | '죽이는 문제' | '패';
 
 export interface ProblemFormat {

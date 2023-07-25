@@ -151,9 +151,19 @@ export default function Home() {
       value: '사활',
     },
     {
+      selected: problemFilter.types.includes('수상전'),
+      content: <div className=' font-medium text-black text-16'>수상전</div>,
+      value: '수상전',
+    },
+    {
       selected: problemFilter.types.includes('맥'),
       content: <div className=' font-medium text-black text-16'>맥</div>,
       value: '맥',
+    },
+    {
+      selected: problemFilter.types.includes('끝내기'),
+      content: <div className=' font-medium text-black text-16'>끝내기</div>,
+      value: '끝내기',
     },
   ];
 

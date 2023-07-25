@@ -10,6 +10,9 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   problems: ProblemInfo[];
 }
 
+// text-color tailwind 리터럴 문자열 해결
+// 처음에 한 번만 딕셔너리로 적용시키면 그 뒤는 리터럴 사용 가능
+// 반드시 같은 파일에 선언해야됨(textColorVariants 파일 export 불가)
 const textColorVariants = {
   bronze: 'text-bronze',
   silver: 'text-silver',
