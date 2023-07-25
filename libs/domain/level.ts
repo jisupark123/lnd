@@ -9,6 +9,9 @@ export type Level = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'rub
 // 30000 ~       마스터
 
 //
+// 브론즈 - 바둑 교실에 다니는 1년 이내 어린이들도 충분히 풀 수 있는 난이도 (사활 시리즈 1~3)
+// 실버 - 타이젬 1~5급, 교실 2~3년차 어린이들이 풀 정도의 난이도 (사활 시리즈 4)
+// 골드 - 타이젬 1~5단 (현현기경, 기경중묘)
 
 export const levelRange = {
   bronze: { from: 0, to: 4999 },
@@ -35,22 +38,22 @@ export function levelFromLevelScore(levelScore: number): { level: Level; grade: 
 // grade는 1로 통일
 export function levelToLevelScore(level: Level): number {
   if (level === 'bronze') {
-    return 0;
+    return 2500;
   }
   if (level === 'silver') {
-    return 5000;
+    return 7500;
   }
   if (level === 'gold') {
-    return 10000;
+    return 12500;
   }
   if (level === 'platinum') {
-    return 15000;
+    return 17500;
   }
   if (level === 'diamond') {
-    return 20000;
+    return 22500;
   }
   if (level === 'ruby') {
-    return 25000;
+    return 27500;
   }
   return 30000;
 }
