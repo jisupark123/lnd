@@ -29,7 +29,7 @@ export interface ProblemMakerInfo {
 
 const initialProblemMakerInfo: ProblemMakerInfo = {
   type: '사활',
-  level: 'gold',
+  level: 'silver',
   firstTurn: 'BLACK',
   result: '살리는 문제',
 };
